@@ -1,0 +1,75 @@
+version: "3.8"
+
+# NOTE: Cannot scale beyond 1 container with custom names!
+
+services:
+  ourgroup-web:
+    container_name: ourgroup-web
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+      target: base
+    # Ensure dependencies are properly installed when starting container
+    entrypoint: "/bin/sh /home/node/ourgroup-web/docker_setup.sh"
+    environment:
+      VITE_API_URL: ${API_HOST}:${API_PORT}
+      VITE_ENV_NAME: ${APP_ENV_NAME:-production}
+      VITE_PORT: ${APP_PORT}
+    volumes:
+      - ./web:/home/node/ourgroup-web
+    ports:
+      - ${APP_PORT}:${APP_PORT} # host:container
+    networks:
+      - ourgroup_network
+  
+  ourgroup-api:
+    container_name: ourgroup-api
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+      target: base
+    depends_on:
+      - ourgroup-db
+    # Ensure dependencies are properly installed when starting container
+    entrypoint: "/bin/sh /home/node/ourgroup-api/docker_setup.sh"
+    environment:
+      APP_URL: ${APP_HOST}:${APP_PORT}
+      NODE_ENV: ${NODE_ENV:-development}
+      PORT: ${API_PORT}
+      DATABASE_URL: "postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:5432/${DB_NAME}"
+    env_file:
+      # NOTE: API-specific env variables belong in a dedicated env file
+      - api/.env
+    volumes:
+      - "./api:/home/node/ourgroup-api"
+    ports:
+      - "${API_PORT}:${API_PORT}" # host:container
+    networks:
+      - ourgroup_network
+
+  ourgroup-db:
+    container_name: ourgroup-db
+    image: postgres:13.4-alpine
+    environment:
+      POSTGRES_DATABASE: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "${DB_PORT}:5432" # host:container
+    volumes:
+      - "db-data:/var/lib/postgresql/data"
+    networks:
+      - ourgroup_network
+    healthcheck:
+      test: "PGPASSWORD=${DB_PASSWORD} -h localhost -U bnd -c '\\l'"
+      interval: 3s
+      timeout: 3s
+      retries: 3
+
+volumes:
+  db-data:
+
+networks:
+  # NOTE: Custom bridge network allows accessing containers by name (ie. as host)!
+  ourgroup_network:
+    driver: bridge

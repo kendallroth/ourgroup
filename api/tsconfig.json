@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "target": "es2017",
+    "sourceMap": true,
+    "incremental": true,
+    "skipLibCheck": true,
+    "noImplicitAny": false,
+    "forceConsistentCasingInFileNames": false,
+    "noFallthroughCasesInSwitch": false,
+    "outDir": "./dist",
+    // Module resolution options
+    "baseUrl": "./src",
+    "paths": {
+      "@common/*": ["common/*"],
+      "@modules/*": ["modules/*"]
+    }
+  },
+  "include": ["src/**/*", "./ormconfig.ts", "./package.json", "./pm2.config.js"],
+  "exclude": ["node_modules"]
+}

@@ -1,0 +1,8 @@
+# Node dependencies
+node_modules
+
+# Built files
+dist
+
+# Markdown files
+README.md

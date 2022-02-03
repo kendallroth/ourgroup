@@ -1,0 +1,11 @@
+# Hidden files
+.env
+
+# Database data
+database/data
+
+# OS files
+.DS_Store
+
+# Miscellaneous
+.vscode/

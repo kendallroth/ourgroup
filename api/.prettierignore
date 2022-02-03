@@ -1,0 +1,11 @@
+# Node dependencies
+node_modules
+
+# Built files
+dist
+
+# Generated files
+src/migrations
+
+# Markdown files
+README.md
