@@ -23,6 +23,11 @@ const lightTheme: ThemeDefinition = {
 };
 
 export default createVuetify({
+  defaults: {
+    VBtn: {
+      rounded: "pill",
+    },
+  },
   theme: {
     defaultTheme: "light",
     themes: {

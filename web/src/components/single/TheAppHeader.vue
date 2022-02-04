@@ -1,33 +1,50 @@
 <template>
   <v-app-bar app class="app-header" color="primary">
     <div class="app-header__content">
-      <v-img
-        :src="logoImg"
-        alt="App Logo"
-        class="app-header__logo"
-        contain
-        height="48"
-        width="48"
-      />
+      <router-link to="/">
+        <v-img
+          :src="logoImg"
+          alt="App Logo"
+          class="app-header__logo"
+          contain
+          height="48"
+          width="48"
+        />
+      </router-link>
       <v-app-bar-title class="app-header__text">OurGroup</v-app-bar-title>
       <div class="app-header__version">v{{ appVersion }}</div>
+      <template v-if="authenticated">
+        <div class="mr-4">{{ account }}</div>
+        <v-btn to="/logout">Logout</v-btn>
+      </template>
+      <template v-else>
+        <v-btn to="/login">Login</v-btn>
+      </template>
     </div>
   </v-app-bar>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { computed, defineComponent } from "vue";
 
 // Utilities
 import config from "@config";
+import { useAccountStore } from "@store";
 
 export default defineComponent({
   name: "TheAppHeader",
   setup() {
+    const accountStore = useAccountStore();
+
+    const account = computed(() => accountStore.account);
+    const authenticated = computed(() => accountStore.authenticated);
+
     const logoImg = new URL("/src/assets/logo.png", import.meta.url).href;
 
     return {
+      account,
       appVersion: config.app.version,
+      authenticated,
       logoImg,
     };
   },
@@ -54,7 +71,7 @@ export default defineComponent({
   background-color: white;
   border-radius: 50%;
 
-  :deep img {
+  :deep(img) {
     padding: 6px;
   }
 }
@@ -63,7 +80,8 @@ export default defineComponent({
 }
 
 .app-header__version {
-  margin-left: auto;
+  margin-left: 16px;
+  margin-right: auto;
   font-size: 0.85rem;
   font-family: monospace;
   opacity: 0.8;
