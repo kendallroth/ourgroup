@@ -1,0 +1,37 @@
+# NOTE: Tried using matrix ([api, web]) for linting/tests, but unfortunately matrix
+#         expressions are not supported inside job-level 'if' conditions.
+# NOTE: Tried usnig relative path to reusable job but currently broken (need repo).
+
+name: Code Quality
+
+on:
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      api_changed: ${{ steps.filter.outputs.api }}
+      web_changed: ${{ steps.filter.outputs.web }}
+    steps:
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            api: ["api/**"]
+            web: ["web/**"]
+
+  api-eslint:
+    needs: detect-changes
+    uses: kendallroth/ourgroup/.github/workflows/workflow-eslint.yaml@main
+    with:
+      directory: api
+      run: ${{ needs.detect-changes.outputs.api_changed == 'true' }}
+
+  web-eslint:
+    needs: detect-changes
+    uses: kendallroth/ourgroup/.github/workflows/workflow-eslint.yaml@main
+    with:
+      directory: web
+      run: ${{ needs.detect-changes.outputs.web_changed == 'true' }}
