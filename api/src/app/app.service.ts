@@ -4,7 +4,8 @@ import { ConfigType } from "@nestjs/config";
 // Utilities
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { version } = require("../../package.json");
-import _appConfig from "./config/app.config";
+
+import _appConfig from "./app.config";
 
 // Types
 import { IApiInfo } from "./types";
