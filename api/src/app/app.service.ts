@@ -2,7 +2,8 @@ import { Inject, Injectable } from "@nestjs/common";
 import { ConfigType } from "@nestjs/config";
 
 // Utilities
-import jsonPackage from "../../package.json";
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { version } = require("../../package.json");
 
 import _appConfig from "./app.config";
 
@@ -25,7 +26,7 @@ export class AppService {
     return {
       releaseDate: this.appConfig.releaseDate,
       releaseHash: this.appConfig.releaseHash,
-      version: jsonPackage.version,
+      version,
     };
   }
 }

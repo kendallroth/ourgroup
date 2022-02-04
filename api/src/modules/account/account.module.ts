@@ -13,7 +13,7 @@ import { AccountService } from "./services";
   exports: [AccountService],
   imports: [
     // External modules
-    PassportModule.register({ defaultStrategy: "jwt" }),
+    PassportModule.register({ defaultStrategy: "jwt", property: "account" }),
     TypeOrmModule.forFeature([Account]),
     // Local modules
     forwardRef(() => AuthModule),
