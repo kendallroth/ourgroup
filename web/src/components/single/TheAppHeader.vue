@@ -54,16 +54,18 @@ export default defineComponent({
   background-color: white;
   border-radius: 50%;
 
-  ::v-deep img {
+  :deep img {
     padding: 6px;
   }
 }
 
-.app-header__text {}
+.app-header__text {
+}
 
 .app-header__version {
   margin-left: auto;
   font-size: 0.85rem;
+  font-family: monospace;
   opacity: 0.8;
 }
 </style>

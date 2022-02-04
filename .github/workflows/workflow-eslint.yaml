@@ -1,0 +1,33 @@
+# Reusable workflow to lint a subproject
+
+name: ESLint
+
+on:
+  workflow_call:
+    inputs:
+      # Subproject directory (ie. api, web)
+      directory:
+        type: string
+        required: true
+      # Whether job should run (if subproject files have changed)
+      run:
+        default: true
+        type: boolean
+        required: false
+
+jobs:
+  lint_subproject:
+    if: ${{ inputs.run }}
+    defaults:
+      run:
+        working-directory: ${{ inputs.directory }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          cache: npm
+          cache-dependency-path: ${{ inputs.directory }}/package-lock.json
+      - run: npm install
+      - run: npm run lint

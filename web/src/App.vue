@@ -16,7 +16,7 @@
         <v-card v-if="!loadingApi" class="app-debug__card" color="success">
           <div class="app-debug__api-version">API: v{{ apiVersion }}</div>
         </v-card>
-        <v-progress-circular v-else color="success" indeterminate size="24" />
+        <v-progress-circular v-else color="success" indeterminate size="24" width="2" />
       </div>
     </v-main>
   </v-app>
@@ -85,6 +85,7 @@ export default defineComponent({
 
 .app-debug__api-version {
   font-size: 0.85rem;
+  font-family: monospace;
   opacity: 0.8;
 }
 </style>
