@@ -1,4 +1,5 @@
 import { createVuetify, ThemeDefinition } from "vuetify";
+import { Intersect } from "vuetify/directives";
 import { aliases, mdi } from "vuetify/lib/iconsets/mdi-svg";
 
 // Styles
@@ -31,6 +32,9 @@ export default createVuetify({
       rounded: "pill",
     },
   },
+  // TODO: Remove once originating bug has been resolved!
+  // Source: https://github.com/vuetifyjs/vuetify/issues/14578
+  directives: { Intersect },
   icons: {
     aliases,
     defaultSet: "mdi",
