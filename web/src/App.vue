@@ -1,7 +1,7 @@
 <template>
   <v-app theme="light">
     <v-main>
-      <the-app-header />
+      <the-app-header :loading="loadingAuth" />
       <router-view v-if="!loadingAuth" />
       <div v-else class="app-loader">
         <v-progress-circular color="primary" indeterminte size="80" />

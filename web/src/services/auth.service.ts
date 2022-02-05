@@ -7,7 +7,7 @@ import { IAuthCredentials, IAuthTokens } from "@typings/auth.types";
 
 const AUTH_TOKEN_KEY = "authToken";
 const REFRESH_TOKEN_KEY = "refreshToken";
-const ACCOUNT_ID_KEY = "userId";
+const ACCOUNT_ID_KEY = "accountId";
 
 class AuthService {
   /** Authenticated account ID */
@@ -90,8 +90,8 @@ class AuthService {
 
     this.refreshCall = ApiService.api
       .post("/auth/refresh-token", {
+        accountId: this.accountId,
         refreshToken: this.refreshToken,
-        userId: this.accountId,
       })
       .then((response) => this.setAuthTokens(response.data))
       .catch((e) => {

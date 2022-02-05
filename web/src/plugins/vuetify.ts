@@ -1,4 +1,7 @@
 import { createVuetify, ThemeDefinition } from "vuetify";
+import { aliases, mdi } from "vuetify/lib/iconsets/mdi-svg";
+
+// Styles
 import "@mdi/font/css/materialdesignicons.css";
 import "vuetify/styles";
 
@@ -26,6 +29,13 @@ export default createVuetify({
   defaults: {
     VBtn: {
       rounded: "pill",
+    },
+  },
+  icons: {
+    aliases,
+    defaultSet: "mdi",
+    sets: {
+      mdi,
     },
   },
   theme: {
