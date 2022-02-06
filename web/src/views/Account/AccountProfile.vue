@@ -13,6 +13,10 @@
             account.verifiedAt ? $filters.formatDate(account.verifiedAt, "MMMM DD, YYYY") : "N/A"
           }}
         </div>
+        <v-alert border="start" class="profile-card__unverified-alert" type="error">
+          Your account has not been verified!
+          <v-btn disabled size="small" variant="outlined">Verify</v-btn>
+        </v-alert>
       </template>
     </v-card>
   </app-page>
@@ -50,5 +54,20 @@ export default defineComponent({
 .profile__label {
   margin-top: 8px;
   font-weight: 600;
+}
+
+.profile-card__unverified-alert {
+  margin-top: 16px;
+
+  :deep(.v-alert__avatar) {
+    align-self: center;
+  }
+
+  :deep(.v-alert__text) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-grow: 1;
+  }
 }
 </style>

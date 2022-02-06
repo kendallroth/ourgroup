@@ -22,14 +22,9 @@
           </v-chip>
           <v-menu ref="menuRef" anchor="bottom end">
             <template #activator="{ props }">
-              <v-btn
-                v-bind="props"
-                id="theAppHeader__menuBtn"
-                :icon="icons.profile"
-                color="transparent"
-                flat
-                small
-              />
+              <v-btn v-bind="props" id="theAppHeader__menuBtn" color="transparent" flat icon small>
+                <v-icon :icon="icons.profile" color="white" />
+              </v-btn>
             </template>
             <v-list class="elevation-2 app-header__menu__list">
               <v-list-subheader class="app-header__menu__title">

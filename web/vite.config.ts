@@ -1,7 +1,7 @@
+import path from "path/posix";
 import { defineConfig, loadEnv } from "vite";
 import vue from "@vitejs/plugin-vue";
 import vuetify from "@vuetify/vite-plugin";
-import path from "path/posix";
 
 export default ({ mode }) => {
   // Load environment variables for access
@@ -11,14 +11,22 @@ export default ({ mode }) => {
     css: {
       preprocessorOptions: {
         scss: {
-          additionalData: `
-            @import "@styles/_breakpoints.scss";
-            @import "@styles/_vars.scss";
-          `,
+          additionalData(source, fp) {
+            // NOTE: Both '@use' and '@forward' rules MUST be some of the first rules
+            //         in an SCSS file! Therefore, if the Vuetify overrides has any
+            //         SCSS imports prepended, it will break this order and cause errors!
+            if (fp.endsWith("vuetify.scss")) return source;
+
+            return `
+              @import "@styles/_breakpoints.scss";
+              @import "@styles/_vars.scss";
+              ${source}
+            `;
+          }
         }
       }
     },
-    plugins: [vue(), vuetify({ autoImport: true })],
+    plugins: [vue(), vuetify({ autoImport: true, styles: "expose" })],
     resolve: {
       alias: {
         "@assets": path.resolve(__dirname, "src/assets"),

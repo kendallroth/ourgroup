@@ -14,6 +14,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fontsource/mulish": "^4.5.4",
     "@mdi/font": "5.9.55",
     "@mdi/js": "^6.5.95",
     "axios": "^0.25.0",

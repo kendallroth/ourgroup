@@ -3,8 +3,9 @@ import { Intersect } from "vuetify/directives";
 import { aliases, mdi } from "vuetify/lib/iconsets/mdi-svg";
 
 // Styles
+// NOTE: Importing 'vuetify/styles' will prevent overrides from working!
 import "@mdi/font/css/materialdesignicons.css";
-import "vuetify/styles";
+import "@styles/vuetify.scss";
 
 const lightTheme: ThemeDefinition = {
   dark: false,
