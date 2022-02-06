@@ -13,17 +13,35 @@
       </router-link>
       <v-app-bar-title class="app-header__text">OurGroup</v-app-bar-title>
       <div class="app-header__version">v{{ appVersion }}</div>
+      <v-spacer />
       <template v-if="!loading && !isLogoutRoute">
         <template v-if="authenticated">
-          <v-menu anchor="bottom end">
+          <v-chip class="mr-2 text-error" color="white">
+            <v-icon :icon="icons.alert" left small />
+            Unverified account
+          </v-chip>
+          <v-menu ref="menuRef" anchor="bottom end">
             <template #activator="{ props }">
-              <v-btn v-bind="props" :icon="icons.profile" color="transparent" flat small />
+              <v-btn
+                v-bind="props"
+                id="theAppHeader__menuBtn"
+                :icon="icons.profile"
+                color="transparent"
+                flat
+                small
+              />
             </template>
             <v-list class="elevation-2 app-header__menu__list">
               <v-list-subheader class="app-header__menu__title">
-                {{ account }}
+                {{ account?.name ?? account?.email }}
               </v-list-subheader>
-              <v-list-item to="/logout">Profile</v-list-item>
+              <v-list-item
+                active-class="app-header__menu__item--active"
+                to="/account/profile"
+                @click="closeMenu"
+              >
+                Profile
+              </v-list-item>
               <v-divider />
               <v-list-item to="/logout">
                 <v-icon :icon="icons.logout" class="mr-2" />
@@ -43,7 +61,7 @@
 <script lang="ts">
 import { computed, defineComponent } from "vue";
 import { useRoute } from "vue-router";
-import { mdiFaceMan, mdiLogoutVariant } from "@mdi/js";
+import { mdiAlert, mdiFaceMan, mdiLogoutVariant } from "@mdi/js";
 
 // Utilities
 import config from "@config";
@@ -66,15 +84,25 @@ export default defineComponent({
     const isLogoutRoute = computed(() => route.name === "authLogout");
 
     const icons = {
+      alert: mdiAlert,
       logout: mdiLogoutVariant,
       profile: mdiFaceMan,
     };
     const logoImg = new URL("/src/assets/logo.png", import.meta.url).href;
 
+    /**
+     * Force menu to close when child item is clicked; required as 'closeOnContentClick' is not supported.
+     */
+    const closeMenu = (): void => {
+      const menuBtnEl: HTMLElement | null = document.querySelector("#theAppHeader__menuBtn");
+      menuBtnEl?.click();
+    };
+
     return {
       account,
       appVersion: config.app.version,
       authenticated,
+      closeMenu,
       icons,
       isLogoutRoute,
       logoImg,
@@ -113,7 +141,6 @@ export default defineComponent({
 
 .app-header__version {
   margin-left: 16px;
-  margin-right: auto;
   font-size: 0.85rem;
   font-family: monospace;
   opacity: 0.8;
@@ -121,7 +148,11 @@ export default defineComponent({
 
 .app-header__menu__list {
   margin-top: 0px;
-  background-color: rgb(var(--v-theme-background));
+  padding-bottom: 0px;
   border-radius: 4px;
+}
+
+.app-header__menu__item--active :deep(.v-list-item__overlay) {
+  opacity: 0;
 }
 </style>

@@ -8,6 +8,16 @@ export default ({ mode }) => {
   const config = loadEnv(mode, process.cwd());
 
   return defineConfig({
+    css: {
+      preprocessorOptions: {
+        scss: {
+          additionalData: `
+            @import "@styles/_breakpoints.scss";
+            @import "@styles/_vars.scss";
+          `,
+        }
+      }
+    },
     plugins: [vue(), vuetify({ autoImport: true })],
     resolve: {
       alias: {

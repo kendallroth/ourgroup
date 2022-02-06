@@ -1,10 +1,10 @@
 import { RouteRecordRaw } from "vue-router";
 
 // Components
+import { AccountProfile, AccountRouter } from "@views/Account";
 import { AuthLogin, AuthLogout } from "@views/Auth";
-// import { UserProfile, UserRouter } from "@views/User";
 import Home from "@views/Home.vue";
-// import PageNotFound from "@views/PageNotFound.vue";
+import PageNotFound from "@views/PageNotFound.vue";
 
 /*
  * There are several types of route protection:
@@ -57,20 +57,20 @@ const unauthenticatedRoutes: RouteRecordRaw[] = [
 ];
 
 const authenticatedRoutes: RouteRecordRaw[] = [
-  /*{
-    path: "/user",
-    name: "userRouter",
-    component: UserRouter,
+  {
+    path: "/account",
+    name: "accountRouter",
+    component: AccountRouter,
     meta: { requiresAuth: true },
-    redirect: "/user/profile",
+    redirect: "/account/profile",
     children: [
       {
         path: "profile",
-        name: "userProfile",
-        component: UserProfile,
+        name: "accountProfile",
+        component: AccountProfile,
       },
     ],
-  },*/
+  },
 ];
 
 const routes: RouteRecordRaw[] = [
@@ -82,11 +82,11 @@ const routes: RouteRecordRaw[] = [
     name: "home",
     component: Home,
   },
-  /*{
-    path: "*",
+  {
+    path: "/:pathMatch(.*)*",
     name: "pageNotFound",
     component: PageNotFound,
-  },*/
+  },
 ];
 
 export default routes;

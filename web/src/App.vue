@@ -1,12 +1,10 @@
 <template>
-  <v-app theme="light">
-    <v-main>
-      <the-app-header :loading="loadingAuth" />
-      <router-view v-if="!loadingAuth" />
-      <div v-else class="app-loader">
-        <v-progress-circular color="primary" indeterminte size="80" />
-      </div>
-    </v-main>
+  <v-app class="app" theme="light">
+    <the-app-header :loading="loadingAuth" />
+    <router-view v-if="!loadingAuth" />
+    <div v-else class="app-loader">
+      <v-progress-circular color="primary" indeterminte size="80" />
+    </div>
   </v-app>
 </template>
 
@@ -37,13 +35,13 @@ export default defineComponent({
     onMounted(async () => {
       loadingAuth.value = true;
 
-      await loadUser();
+      await loadAccount();
 
       loadingAuth.value = false;
     });
 
-    const loadUser = async (): Promise<void> => {
-      // Only try fetching authenticated user if all auth tokens are present
+    const loadAccount = async (): Promise<void> => {
+      // Only try fetching authenticated account if all auth tokens are present
       const hasAuthTokens = AuthService.hasAuthTokens();
       if (!hasAuthTokens) {
         loadingAuth.value = false;
@@ -53,11 +51,11 @@ export default defineComponent({
 
       loadingAuth.value = true;
 
-      let user = null;
+      let account = null;
       try {
-        user = await AccountService.fetchAccount();
+        account = await AccountService.fetchAccount();
       } catch (e) {
-        console.log("Error loading authenticated user", e);
+        console.log("Error loading authenticated account", e);
         loadingAuth.value = false;
 
         // Auth token should be removed if authentiation fails
@@ -67,11 +65,11 @@ export default defineComponent({
         return;
       }
 
-      accountStore.setAccount(user.email);
+      accountStore.setAccount(account);
 
       loadingAuth.value = false;
 
-      if (!user) return;
+      if (!account) return;
 
       // Redirect away from unauthenticated pages when authenticated
       const { meta } = route;
@@ -94,8 +92,8 @@ export default defineComponent({
           query: { redirectUrl: fullPath },
         });
 
-        // TODO: Notify user that they are not authenticated
-        console.error("User is not authenticated");
+        // TODO: Notify account that they are not authenticated
+        console.error("Account is not authenticated");
       }
     };
 
@@ -107,6 +105,11 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
+.app {
+  flex-grow: 1;
+  min-height: 100vh;
+}
+
 .app-construction {
   display: flex;
   flex-direction: column;

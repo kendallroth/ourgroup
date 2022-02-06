@@ -1,18 +1,26 @@
 <template>
-  <div class="logout">
-    <v-progress-circular color="primary" indeterminate size="50" />
-    <div class="logout-message">Signing out&hellip;</div>
-  </div>
+  <auth-layout title="Goodbye!">
+    <div class="logout">
+      <v-progress-circular color="primary" indeterminate size="50" />
+      <div class="logout-message">Signing out&hellip;</div>
+    </div>
+  </auth-layout>
 </template>
 
 <script lang="ts">
 import { defineComponent, onMounted } from "vue";
+
+// Components
+import AuthLayout from "./components/AuthLayout.vue";
 
 // Utilities
 import { AuthService } from "@services";
 
 export default defineComponent({
   name: "AuthLogout",
+  components: {
+    AuthLayout,
+  },
   setup() {
     onMounted(() => {
       setTimeout(async () => {
@@ -33,13 +41,10 @@ export default defineComponent({
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  height: 100%;
-  margin: 32px 0;
 }
 
 .logout-message {
   margin-top: 32px;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
 }
 </style>

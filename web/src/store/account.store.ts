@@ -1,7 +1,10 @@
 import { acceptHMRUpdate, defineStore } from "pinia";
 
+// Types
+import { IAuthAccount } from "@typings/account.types";
+
 interface IState {
-  account: string | null;
+  account: IAuthAccount | null;
 }
 
 export const useAccountStore = defineStore("account", {
@@ -12,7 +15,7 @@ export const useAccountStore = defineStore("account", {
     authenticated: (state) => Boolean(state.account),
   },
   actions: {
-    setAccount(payload: string | null) {
+    setAccount(payload: IAuthAccount | null) {
       this.account = payload;
     },
     clearAccount() {

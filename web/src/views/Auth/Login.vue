@@ -1,5 +1,5 @@
 <template>
-  <div class="login">
+  <auth-layout title="Login">
     <form class="login-form" @submit="onLogin">
       <text-field :disabled="submitting" autofocus density="default" label="Email" name="email" />
       <text-field :disabled="submitting" label="Password" density="default" name="password" />
@@ -14,7 +14,7 @@
         Login
       </v-btn>
     </form>
-  </div>
+  </auth-layout>
 </template>
 
 <script lang="ts">
@@ -24,7 +24,7 @@ import { useRoute } from "vue-router";
 import * as yup from "yup";
 
 // Components
-import { TextField } from "@components/form";
+import AuthLayout from "./components/AuthLayout.vue";
 
 // Utilities
 import { AuthService } from "@services";
@@ -32,7 +32,7 @@ import { AuthService } from "@services";
 export default defineComponent({
   name: "AuthLogin",
   components: {
-    TextField,
+    AuthLayout,
   },
   setup() {
     const route = useRoute();
@@ -88,15 +88,6 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-.login {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
 .login-form {
-  margin: 64px 0;
-  width: 100%;
-  max-width: 400px;
 }
 </style>
