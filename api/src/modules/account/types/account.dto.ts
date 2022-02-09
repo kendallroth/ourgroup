@@ -23,6 +23,13 @@ export class AccountCreateDto {
   password!: string;
 }
 
+export class AccountUpdateDto {
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(4)
+  name!: string;
+}
+
 export class AccountVerifyDto {
   /** Account verification code */
   @IsString()

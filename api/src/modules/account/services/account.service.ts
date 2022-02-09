@@ -24,6 +24,7 @@ import { Account } from "../entities";
 import { IAuthenticationResponse, VerificationCodeType } from "@modules/auth/types";
 import {
   AccountCreateDto,
+  AccountUpdateDto,
   AccountVerifyDto,
   AccountVerifyResendDto,
   IAccountPrivateInfo,
@@ -178,6 +179,18 @@ export class AccountService {
     account.password = passwordHash;
 
     await this.accountRepo.save(account);
+  }
+
+  /**
+   * Update a user's profile information
+   */
+  async updateProfile(account: Account, payload: AccountUpdateDto): Promise<IAccountPrivateInfo> {
+    const updatedAccount = await this.accountRepo.save({
+      id: account.id,
+      name: payload.name,
+    });
+
+    return this.getPrivateProfile({ ...account, ...updatedAccount });
   }
 
   /**

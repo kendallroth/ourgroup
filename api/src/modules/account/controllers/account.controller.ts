@@ -9,6 +9,7 @@ import { AccountService } from "../services";
 import { IAuthenticationResponse } from "@modules/auth/types";
 import {
   AccountCreateDto,
+  AccountUpdateDto,
   AccountVerifyDto,
   AccountVerifyResendDto,
   IAccountPrivateInfo,
@@ -21,13 +22,23 @@ export class AccountController {
 
   /** Get current authenticated account information */
   @UseGuards(JwtAuthGuard)
-  @Get()
+  @Get("/")
   async getAccountInfo(@Request() req: AuthenticatedRequest): Promise<IAccountPrivateInfo> {
     return this.accountService.getPrivateProfile(req.account);
   }
 
+  /** Update current authenticated account information */
+  @UseGuards(JwtAuthGuard)
+  @Patch("/")
+  async updateAccountInfo(
+    @Request() req: AuthenticatedRequest,
+    @Body() payload: AccountUpdateDto,
+  ): Promise<IAccountPrivateInfo> {
+    return this.accountService.updateProfile(req.account, payload);
+  }
+
   /** Create a new account */
-  @Post()
+  @Post("/")
   async createAccount(@Body() payload: AccountCreateDto): Promise<IAuthenticationResponse> {
     return this.accountService.createAccount(payload);
   }

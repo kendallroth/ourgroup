@@ -20,7 +20,7 @@
             <v-icon :icon="icons.alert" left small />
             Unverified account
           </v-chip>
-          <v-menu ref="menuRef" anchor="bottom end">
+          <v-menu ref="menuRef" anchor="bottom end" min-width="500">
             <template #activator="{ props }">
               <v-btn v-bind="props" id="theAppHeader__menuBtn" color="transparent" flat icon small>
                 <v-icon :icon="icons.profile" color="white" />
@@ -141,6 +141,7 @@ export default defineComponent({
   margin-top: 0px;
   padding-bottom: 0px;
   border-radius: 4px;
+  min-width: 200px; // NOTE: Workaround since 'VMenu.minWidth' is not working!
 }
 
 .app-header__menu__item--active :deep(.v-list-item__overlay) {
