@@ -3,7 +3,7 @@ export interface IAuthAccount {
   email: string;
   name: string | null;
   id: string;
-  verifiedAt: Date;
+  verifiedAt: string;
 }
 
 /** Account creation payload */

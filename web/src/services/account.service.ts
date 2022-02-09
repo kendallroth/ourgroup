@@ -3,7 +3,7 @@ import ApiService from "./api.service";
 import AuthService from "./auth.service";
 
 // Types
-import { IAuthTokens } from "@typings/auth.types";
+import { IAuthTokens, IEmailResendResponse } from "@typings/auth.types";
 import { IAuthAccount, IAccountCreate } from "@typings/account.types";
 
 class AccountService {
@@ -16,7 +16,7 @@ class AccountService {
     const response = await ApiService.api.get("/account");
     const account = response.data;
 
-    // TODO: Determine where we store in Redux
+    // TODO: Determine where we store in Redux (or if?)
 
     return {
       email: account.email,
@@ -48,6 +48,16 @@ class AccountService {
     const tokens: IAuthTokens = response.data;
 
     AuthService.setAuthTokens(tokens);
+  }
+
+  /**
+   * Resend account verification code
+   *
+   * @param email - Email from target account
+   */
+  async verifyAccountResend(email: string): Promise<IEmailResendResponse> {
+    const response = await ApiService.api.post("/account/verify/resend", { email });
+    return response.data;
   }
 }
 

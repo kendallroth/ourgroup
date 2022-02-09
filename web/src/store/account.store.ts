@@ -13,10 +13,17 @@ export const useAccountStore = defineStore("account", {
   }),
   getters: {
     authenticated: (state) => Boolean(state.account),
+    verified: (state) => Boolean(state.account?.verifiedAt),
   },
   actions: {
     setAccount(payload: IAuthAccount | null) {
       this.account = payload;
+    },
+    updateAccount(payload: Partial<IAuthAccount>) {
+      this.account = {
+        ...this.account,
+        ...payload,
+      } as IAuthAccount;
     },
     clearAccount() {
       this.$reset();

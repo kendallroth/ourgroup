@@ -13,9 +13,21 @@
             account.verifiedAt ? $filters.formatDate(account.verifiedAt, "MMMM DD, YYYY") : "N/A"
           }}
         </div>
-        <v-alert border="start" class="profile-card__unverified-alert" type="error">
+        <v-alert
+          v-if="!accountStore.verified"
+          border="start"
+          class="profile-card__unverified-alert"
+          type="error"
+        >
           Your account has not been verified!
-          <v-btn disabled size="small" variant="outlined">Verify</v-btn>
+          <v-btn
+            :disabled="resendDisabled"
+            size="small"
+            variant="outlined"
+            @click="onResendVerification"
+          >
+            Verify
+          </v-btn>
         </v-alert>
       </template>
     </v-card>
@@ -23,18 +35,31 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { computed, defineComponent } from "vue";
 
 // Utilities
+import { useAccountVerifyResend } from "@composables";
 import { useAccountStore } from "@store";
 
 export default defineComponent({
   name: "AccountProfile",
   setup() {
     const accountStore = useAccountStore();
+    const { resendVerification, resendDisabled } = useAccountVerifyResend();
+
+    const onResendVerification = async () => {
+      try {
+        await resendVerification();
+      } catch {
+        // TODO: Display error snackbar
+      }
+    };
 
     return {
-      account: accountStore.account,
+      accountStore,
+      account: computed(() => accountStore.account),
+      resendDisabled,
+      onResendVerification,
     };
   },
 });

@@ -31,6 +31,7 @@ export default ({ mode }) => {
       alias: {
         "@assets": path.resolve(__dirname, "src/assets"),
         "@components": path.resolve(__dirname, "src/components"),
+        "@composables": path.resolve(__dirname, "src/composables"),
         "@config": path.resolve(__dirname, "src/config.ts"),
         "@plugins": path.resolve(__dirname, "src/plugins"),
         "@router": path.resolve(__dirname, "src/router"),

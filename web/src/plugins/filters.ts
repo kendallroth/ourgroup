@@ -7,8 +7,8 @@
 
 import dayjs from "dayjs";
 
-/** Format a date according to a DayJS/MomentJS format string */
-const formatDate = (date: Date, format: string): string => {
+/** Format an ISO date according to a DayJS/MomentJS format string */
+const formatDate = (date: string, format: string): string => {
   return date ? dayjs(date).format(format) : "";
 };
 

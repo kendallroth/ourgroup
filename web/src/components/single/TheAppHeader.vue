@@ -15,8 +15,8 @@
       <div class="app-header__version">v{{ appVersion }}</div>
       <v-spacer />
       <template v-if="!loading && !isLogoutRoute">
-        <template v-if="authenticated">
-          <v-chip class="mr-2 text-error" color="white">
+        <template v-if="accountStore.authenticated">
+          <v-chip v-if="!accountStore.verified" class="mr-2 text-error" color="white">
             <v-icon :icon="icons.alert" left small />
             Unverified account
           </v-chip>
@@ -74,8 +74,6 @@ export default defineComponent({
     const route = useRoute();
     const accountStore = useAccountStore();
 
-    const account = computed(() => accountStore.account);
-    const authenticated = computed(() => accountStore.authenticated);
     const isLogoutRoute = computed(() => route.name === "authLogout");
 
     const icons = {
@@ -94,9 +92,9 @@ export default defineComponent({
     };
 
     return {
-      account,
+      account: computed(() => accountStore.account),
+      accountStore,
       appVersion: config.app.version,
-      authenticated,
       closeMenu,
       icons,
       isLogoutRoute,
@@ -129,9 +127,6 @@ export default defineComponent({
   :deep(img) {
     padding: 6px;
   }
-}
-
-.app-header__text {
 }
 
 .app-header__version {

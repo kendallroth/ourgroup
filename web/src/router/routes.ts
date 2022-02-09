@@ -2,7 +2,7 @@ import { RouteRecordRaw } from "vue-router";
 
 // Components
 import { AccountProfile, AccountRouter } from "@views/Account";
-import { AuthLogin, AuthLogout } from "@views/Auth";
+import { AuthLogin, AuthLogout, AuthVerify } from "@views/Auth";
 import Home from "@views/Home.vue";
 import PageNotFound from "@views/PageNotFound.vue";
 
@@ -31,16 +31,16 @@ const unauthenticatedRoutes: RouteRecordRaw[] = [
     component: AuthLogin,
     meta: { requiresNoAuth: true },
   },
+  {
+    path: "/verify/:code",
+    name: "authVerify",
+    component: AuthVerify,
+  },
   /*{
     path: "/register",
     name: "authRegister",
     component: Register,
     meta: { requiresNoAuth: true },
-  },
-  {
-    path: "/verify/:code",
-    name: "authVerify",
-    component: VerifyUser,
   },
   {
     path: "/password/forget",

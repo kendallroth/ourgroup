@@ -230,7 +230,11 @@ export class AccountService {
     }
 
     if (account.verifiedAt) {
-      throw new ConflictException("Account already verified");
+      throw new CodedError(
+        "ACCOUNT_VERIFY_RESEND__ALREADY_VERIFIED",
+        "Account already verified",
+        HttpStatus.CONFLICT,
+      );
     }
 
     const verificationType = VerificationCodeType.ACCOUNT_VERIFICATION;
@@ -259,6 +263,7 @@ export class AccountService {
 
     return {
       expiry: codeExpiry,
+      wait: MIN_VERIFICATION_CODE_REGEN_TIME,
     };
   }
 }

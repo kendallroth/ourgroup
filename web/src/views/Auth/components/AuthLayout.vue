@@ -7,8 +7,10 @@
         </slot>
       </div>
       <div class="auth-layout__side auth-layout__side--right">
-        <h2 class="auth-layout__title" type="h2">{{ title }}</h2>
-        <slot name="default" />
+        <div class="auth-layout__side__content--right elevation-2">
+          <h2 class="auth-layout__title" type="h2">{{ title }}</h2>
+          <slot name="default" />
+        </div>
       </div>
     </div>
   </v-main>
@@ -71,7 +73,7 @@ $max-page-width: $breakpoint-lg - 160;
     }
 
     @include mdUp() {
-      width: calc(100% * 2 / 3);
+      width: calc(100% * 3 / 5);
     }
   }
   &.auth-layout__side--right {
@@ -82,18 +84,16 @@ $max-page-width: $breakpoint-lg - 160;
     }
 
     @include mdUp {
-      width: calc(100% * 1 / 3);
+      width: calc(100% * 2 / 5);
     }
   }
 }
 
-// Layout content within the left/right sections
-.auth-layout__side__content {
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1; // Fill side section height
-  width: 100%;
-  // max-width: #{$max-page-width / 2}px;
+.auth-layout__side__content--right {
+  padding: 24px;
+  padding-top: 16px;
+  background-color: rgb(var(--v-theme-surface));
+  border-radius: 8px;
 }
 </style>
 
