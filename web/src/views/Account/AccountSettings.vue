@@ -1,0 +1,107 @@
+<template>
+  <app-page size="small">
+    <v-card class="settings-card">
+      <h2>Settings</h2>
+      <v-divider class="my-4" />
+      <h3 class="mt-6 mb-4">Change Password</h3>
+      <form class="change-password-form" @submit="onChangePassword">
+        <v-container>
+          <v-row>
+            <v-col>
+              <text-field :disabled="submitting" label="Old Password" name="oldPassword" />
+            </v-col>
+            <v-col>
+              <text-field :disabled="submitting" label="New Password" name="newPassword" />
+            </v-col>
+          </v-row>
+        </v-container>
+        <v-btn
+          :disabled="submitting"
+          class="ml-auto"
+          color="primary"
+          type="submit"
+          @click="onChangePassword"
+        >
+          Change Password
+        </v-btn>
+      </form>
+    </v-card>
+  </app-page>
+</template>
+
+<script lang="ts">
+import { useForm } from "vee-validate";
+import { computed, defineComponent } from "vue";
+import * as yup from "yup";
+
+// Utilities
+import { PasswordService } from "@services";
+import { useAccountStore } from "@store";
+import { useErrors } from "@composables";
+
+export default defineComponent({
+  name: "AccountSettings",
+  setup() {
+    const accountStore = useAccountStore();
+    const { getError, hasError } = useErrors();
+
+    const schema = yup.object({
+      newPassword: yup.string().label("Password").min(8).required(),
+      oldPassword: yup.string().label("Current password").required(),
+    });
+
+    const { handleSubmit, isSubmitting, resetForm, setFieldError, values } = useForm({
+      validationSchema: schema,
+      initialValues: {
+        newPassword: "",
+        oldPassword: "",
+      },
+    });
+
+    /** Change current account password */
+    const onChangePassword = async (data: typeof values): Promise<void> => {
+      const { newPassword, oldPassword } = data;
+
+      try {
+        await PasswordService.changePassword({ newPassword, oldPassword });
+      } catch (e: any) {
+        if (hasError(e, "CHANGE_PASSWORD__WRONG_PASSWORD")) {
+          setFieldError("oldPassword", "Password is incorrect");
+        }
+        if (hasError(e, "CHANGE_PASSWORD__PASSWORD_MATCHES_OLD")) {
+          setFieldError("newPassword", "Password cannot match old password");
+        }
+
+        // TODO: Display error snackbar
+
+        return;
+      }
+
+      // TODO: Display success snackbar
+      resetForm();
+    };
+
+    return {
+      account: computed(() => accountStore.account),
+      submitting: isSubmitting,
+      onChangePassword: handleSubmit(onChangePassword),
+    };
+  },
+});
+</script>
+
+<style lang="scss" scoped>
+.settings-card {
+  padding: 24px;
+  margin: 32px 0;
+}
+.change-password-form {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  > .v-container {
+    padding: 0;
+  }
+}
+</style>

@@ -1,7 +1,7 @@
 import { RouteRecordRaw } from "vue-router";
 
 // Components
-import { AccountProfile, AccountRouter } from "@views/Account";
+import { AccountProfile, AccountRouter, AccountSettings } from "@views/Account";
 import { AuthLogin, AuthLogout, AuthRegister, AuthVerify } from "@views/Auth";
 import Home from "@views/Home.vue";
 import PageNotFound from "@views/PageNotFound.vue";
@@ -68,6 +68,11 @@ const authenticatedRoutes: RouteRecordRaw[] = [
         path: "profile",
         name: "accountProfile",
         component: AccountProfile,
+      },
+      {
+        path: "settings",
+        name: "accountSettings",
+        component: AccountSettings,
       },
     ],
   },

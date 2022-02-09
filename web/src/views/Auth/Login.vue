@@ -43,7 +43,7 @@ export default defineComponent({
       password: yup.string().label("Password").min(8).required(),
     });
 
-    const { handleSubmit, isSubmitting, meta, values } = useForm({
+    const { handleSubmit, isSubmitting, meta, setFieldError, values } = useForm({
       validationSchema: schema,
       initialValues: {
         email: "",
@@ -64,7 +64,7 @@ export default defineComponent({
       try {
         await AuthService.login({ email, password });
       } catch (e) {
-        // TODO: Handle/detect specific errors
+        setFieldError("email", "Invalid credentials");
 
         console.log("Form error", e);
         return;

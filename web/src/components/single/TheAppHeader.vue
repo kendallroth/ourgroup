@@ -20,7 +20,7 @@
             <v-icon :icon="icons.alert" left small />
             Unverified account
           </v-chip>
-          <v-menu ref="menuRef" anchor="bottom end" min-width="500">
+          <v-menu ref="menuRef" anchor="bottom end">
             <template #activator="{ props }">
               <v-btn v-bind="props" id="theAppHeader__menuBtn" color="transparent" flat icon small>
                 <v-icon :icon="icons.profile" color="white" />
@@ -36,6 +36,13 @@
                 @click="closeMenu"
               >
                 Profile
+              </v-list-item>
+              <v-list-item
+                active-class="app-header__menu__item--active"
+                to="/account/settings"
+                @click="closeMenu"
+              >
+                Settings
               </v-list-item>
               <v-divider />
               <v-list-item to="/logout">
@@ -114,7 +121,7 @@ export default defineComponent({
   display: flex;
   align-items: center;
   width: 100%;
-  // max-width: #{$breakpoint-lg}px;
+  max-width: #{$breakpoint-lg}px;
   margin: 0 auto;
   padding: 0 16px;
 }
@@ -135,6 +142,10 @@ export default defineComponent({
   font-size: 0.85rem;
   font-family: monospace;
   opacity: 0.8;
+}
+
+.app-header__menu__title {
+  font-weight: 600;
 }
 
 .app-header__menu__list {
