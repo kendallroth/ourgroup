@@ -46,7 +46,8 @@
           </v-menu>
         </template>
         <template v-else>
-          <v-btn to="/login">Login</v-btn>
+          <v-btn class="mr-4" to="/register" variant="outlined">Sign Up</v-btn>
+          <v-btn to="/login">Log In</v-btn>
         </template>
       </template>
     </div>

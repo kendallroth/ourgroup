@@ -8,6 +8,18 @@ import { IAuthAccount, IAccountCreate } from "@typings/account.types";
 
 class AccountService {
   /**
+   * Create a new account
+   *
+   * @param account - Account registration information
+   */
+  async createAccount(account: IAccountCreate): Promise<void> {
+    const response = await ApiService.api.post("/account", account);
+    const tokens: IAuthTokens = response.data;
+
+    AuthService.setAuthTokens(tokens);
+  }
+
+  /**
    * Fetch authenticated account information
    *
    * @returns Authenticated account information
@@ -24,18 +36,6 @@ class AccountService {
       id: account.id,
       verifiedAt: account.verifiedAt ?? null,
     };
-  }
-
-  /**
-   * Create a new account
-   *
-   * @param account - Account registration information
-   */
-  async register(account: IAccountCreate): Promise<void> {
-    const response = await ApiService.api.post("/account", account);
-    const tokens: IAuthTokens = response.data;
-
-    AuthService.setAuthTokens(tokens);
   }
 
   /**

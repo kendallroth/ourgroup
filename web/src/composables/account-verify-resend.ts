@@ -17,7 +17,7 @@ interface IUseAccountVerifyResend {
 const useAccountVerifyResend = (): IUseAccountVerifyResend => {
   const accountStore = useAccountStore();
   const { countdownActive, startCountdown } = useCountdown();
-  const { getErrorCode } = useErrors();
+  const { hasError } = useErrors();
 
   /** Resend account verification email */
   const resendVerification = async () => {
@@ -28,8 +28,7 @@ const useAccountVerifyResend = (): IUseAccountVerifyResend => {
       const meta = await AccountService.verifyAccountResend(email);
       startCountdown(meta.wait);
     } catch (e: any) {
-      const errorCode = getErrorCode(e);
-      if (errorCode === "ACCOUNT_VERIFY_RESEND__ALREADY_VERIFIED") {
+      if (hasError(e, "ACCOUNT_VERIFY_RESEND__ALREADY_VERIFIED")) {
         // TODO: Display snackbar
         accountStore.updateAccount({ verifiedAt: dayjs().toISOString() });
       } else {

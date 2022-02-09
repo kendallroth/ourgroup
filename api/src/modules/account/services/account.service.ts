@@ -1,6 +1,5 @@
 import {
   BadRequestException,
-  ConflictException,
   forwardRef,
   HttpStatus,
   Inject,
@@ -55,9 +54,10 @@ export class AccountService {
    * @returns Authentication tokens
    */
   async createAccount(payload: AccountCreateDto): Promise<IAuthenticationResponse> {
-    const { email: _email, password } = payload;
+    const { email: _email, name: _name, password } = payload;
 
     const email = _email.trim().toLowerCase();
+    const name = _name.trim();
 
     const emailAccount = await this.findByEmail(email);
     if (emailAccount) {
@@ -72,6 +72,7 @@ export class AccountService {
 
     const account = await this.accountRepo.save({
       email,
+      name,
       password: passwordHash,
       verifiedAt: null,
     });

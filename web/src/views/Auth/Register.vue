@@ -1,7 +1,8 @@
 <template>
-  <auth-layout title="Login">
-    <form class="login-form" @submit="onLogin">
-      <text-field :disabled="submitting" autofocus density="default" label="Email" name="email" />
+  <auth-layout title="Create Account">
+    <form class="register-form" @submit="onCreateAccount">
+      <text-field :disabled="submitting" autofocus density="default" label="Name" name="name" />
+      <text-field :disabled="submitting" density="default" label="Email" name="email" />
       <text-field :disabled="submitting" label="Password" density="default" name="password" />
       <v-btn
         :disabled="submitting"
@@ -9,9 +10,9 @@
         color="primary"
         size="large"
         type="submit"
-        @click="onLogin"
+        @click="onCreateAccount"
       >
-        Login
+        Create Account
       </v-btn>
     </form>
   </auth-layout>
@@ -20,33 +21,36 @@
 <script lang="ts">
 import { useForm } from "vee-validate";
 import { computed, defineComponent, ref } from "vue";
-import { useRoute } from "vue-router";
 import * as yup from "yup";
 
 // Components
 import AuthLayout from "./components/AuthLayout.vue";
 
 // Utilities
-import { AuthService } from "@services";
+import { useErrors } from "@composables";
+import { AccountService } from "@services";
 
 export default defineComponent({
-  name: "AuthLogin",
+  name: "AuthRegister",
   components: {
     AuthLayout,
   },
   setup() {
-    const route = useRoute();
     const hasSubmitted = ref(false);
+
+    const { hasError } = useErrors();
 
     const schema = yup.object({
       email: yup.string().label("Email").email().required(),
+      name: yup.string().label("Name").min(4).required(),
       password: yup.string().label("Password").min(8).required(),
     });
 
-    const { handleSubmit, isSubmitting, meta, values } = useForm({
+    const { handleSubmit, isSubmitting, meta, setFieldError, values } = useForm({
       validationSchema: schema,
       initialValues: {
         email: "",
+        name: "",
         password: "",
       },
     });
@@ -56,15 +60,23 @@ export default defineComponent({
     );
 
     /**
-     * Authenticate user and store received credentials
+     * Create user account
      */
-    const onLogin = async (data: typeof values): Promise<void> => {
-      const { email, password } = data;
+    const onCreateAccount = async (data: typeof values): Promise<void> => {
+      const { email, name, password } = data;
 
       try {
-        await AuthService.login({ email, password });
-      } catch (e) {
+        await AccountService.createAccount({
+          email,
+          name,
+          password,
+        });
+      } catch (e: any) {
         // TODO: Handle/detect specific errors
+
+        if (hasError(e, "REGISTER__EMAIL_ALREADY_USED")) {
+          setFieldError("email", "Email already registered");
+        }
 
         console.log("Form error", e);
         return;
@@ -73,21 +85,19 @@ export default defineComponent({
       // NOTE: Don't reset submission state before refreshing page!
       hasSubmitted.value = true;
 
-      // Redirect to previous page (if necessary)
-      const { redirectUrl = "/" } = route.query;
       // Force a page refresh to better clean up app state
-      window.location.replace(redirectUrl as string);
+      window.location.replace("/");
     };
 
     return {
       submitting,
-      onLogin: handleSubmit(onLogin),
+      onCreateAccount: handleSubmit(onCreateAccount),
     };
   },
 });
 </script>
 
 <style lang="scss" scoped>
-.login-form {
+.register-form {
 }
 </style>

@@ -9,5 +9,6 @@ export interface IAuthAccount {
 /** Account creation payload */
 export interface IAccountCreate {
   email: string;
+  name: string;
   password: string;
 }
