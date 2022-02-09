@@ -9,14 +9,7 @@
           This email code is invalid, and you will need to request another email to activate your
           account.
         </span>
-        <v-btn
-          :disabled="resendDisabled || true"
-          class="mt-6"
-          color="primary"
-          replace
-          size="large"
-          to="/verify/resend"
-        >
+        <v-btn disabled class="mt-6" color="primary" replace size="large" to="/verify/resend">
           Resend Verification
         </v-btn>
       </template>
@@ -40,7 +33,7 @@ import { useRoute } from "vue-router";
 import AuthLayout from "./components/AuthLayout.vue";
 
 // Utilities
-import { useAccountVerifyResend, useErrors } from "@composables";
+import { useErrors, useSnackbar } from "@composables";
 import { AccountService } from "@services";
 import { useAccountStore } from "@store";
 
@@ -54,8 +47,8 @@ export default defineComponent({
     const loading = ref(false);
 
     const accountStore = useAccountStore();
-    const { resendVerification, resendDisabled } = useAccountVerifyResend();
     const { getError } = useErrors();
+    const { notifyError } = useSnackbar();
     const route = useRoute();
 
     /** Link to coninue after verifying account */
@@ -75,13 +68,13 @@ export default defineComponent({
         accountStore.updateAccount({ verifiedAt: dayjs().toISOString() });
       } catch (e: any) {
         loading.value = false;
-        activationError.value = getError(e, "Could not verify account");
-        // TODO: Display error snackbar
+        const errorMessage = getError(e, "Could not verify account");
+        activationError.value = errorMessage;
+        notifyError(errorMessage);
         return;
       }
 
       loading.value = false;
-      // TODO: Display success snackbar
     };
 
     /** Proceed to app after verifying account */
@@ -89,21 +82,10 @@ export default defineComponent({
       window.location.replace(continueLink.value);
     };
 
-    /** Resend verification code */
-    const onResendVerification = async () => {
-      try {
-        await resendVerification();
-      } catch {
-        // TODO: Display error snackbar
-      }
-    };
-
     return {
       activationError,
       loading,
-      resendDisabled,
       onContinue,
-      onResendVerification,
     };
   },
 });

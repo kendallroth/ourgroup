@@ -6,6 +6,7 @@ import { AccountService } from "@services";
 import { useAccountStore } from "@store";
 import { useCountdown } from "./countdown";
 import { useErrors } from "./errors";
+import { useSnackbar } from "./snackbar";
 
 interface IUseAccountVerifyResend {
   /** Whether verification resend is temporarily disabled */
@@ -18,6 +19,7 @@ const useAccountVerifyResend = (): IUseAccountVerifyResend => {
   const accountStore = useAccountStore();
   const { countdownActive, startCountdown } = useCountdown();
   const { hasError } = useErrors();
+  const { notify } = useSnackbar();
 
   /** Resend account verification email */
   const resendVerification = async () => {
@@ -29,7 +31,7 @@ const useAccountVerifyResend = (): IUseAccountVerifyResend => {
       startCountdown(meta.wait);
     } catch (e: any) {
       if (hasError(e, "ACCOUNT_VERIFY_RESEND__ALREADY_VERIFIED")) {
-        // TODO: Display snackbar
+        notify("Account was already verified");
         accountStore.updateAccount({ verifiedAt: dayjs().toISOString() });
       } else {
         throw e;

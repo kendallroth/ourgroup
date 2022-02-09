@@ -3,7 +3,13 @@
     <form class="register-form" @submit="onCreateAccount">
       <text-field :disabled="submitting" autofocus density="default" label="Name" name="name" />
       <text-field :disabled="submitting" density="default" label="Email" name="email" />
-      <text-field :disabled="submitting" label="Password" density="default" name="password" />
+      <text-field
+        :disabled="submitting"
+        label="Password"
+        density="default"
+        name="password"
+        password
+      />
       <v-btn
         :disabled="submitting"
         block
@@ -27,7 +33,7 @@ import * as yup from "yup";
 import AuthLayout from "./components/AuthLayout.vue";
 
 // Utilities
-import { useErrors } from "@composables";
+import { useErrors, useSnackbar } from "@composables";
 import { AccountService } from "@services";
 
 export default defineComponent({
@@ -38,7 +44,8 @@ export default defineComponent({
   setup() {
     const hasSubmitted = ref(false);
 
-    const { hasError } = useErrors();
+    const { getError, hasError } = useErrors();
+    const { notifyError } = useSnackbar();
 
     const schema = yup.object({
       email: yup.string().label("Email").email().required(),
@@ -59,9 +66,6 @@ export default defineComponent({
       () => (isSubmitting.value && meta.value.valid) || hasSubmitted.value,
     );
 
-    /**
-     * Create user account
-     */
     const onCreateAccount = async (data: typeof values): Promise<void> => {
       const { email, name, password } = data;
 
@@ -72,13 +76,11 @@ export default defineComponent({
           password,
         });
       } catch (e: any) {
-        // TODO: Handle/detect specific errors
-
         if (hasError(e, "REGISTER__EMAIL_ALREADY_USED")) {
           setFieldError("email", "Email already registered");
         }
 
-        console.log("Form error", e);
+        notifyError(getError(e, "Failed to login"));
         return;
       }
 

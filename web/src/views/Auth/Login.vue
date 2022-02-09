@@ -2,7 +2,13 @@
   <auth-layout title="Login">
     <form class="login-form" @submit="onLogin">
       <text-field :disabled="submitting" autofocus density="default" label="Email" name="email" />
-      <text-field :disabled="submitting" label="Password" density="default" name="password" />
+      <text-field
+        :disabled="submitting"
+        label="Password"
+        density="default"
+        name="password"
+        password
+      />
       <v-btn
         :disabled="submitting"
         block
@@ -28,6 +34,7 @@ import AuthLayout from "./components/AuthLayout.vue";
 
 // Utilities
 import { AuthService } from "@services";
+import { useErrors, useSnackbar } from "@composables";
 
 export default defineComponent({
   name: "AuthLogin",
@@ -35,12 +42,15 @@ export default defineComponent({
     AuthLayout,
   },
   setup() {
-    const route = useRoute();
     const hasSubmitted = ref(false);
+
+    const route = useRoute();
+    const { getError } = useErrors();
+    const { notifyError } = useSnackbar();
 
     const schema = yup.object({
       email: yup.string().label("Email").email().required(),
-      password: yup.string().label("Password").min(8).required(),
+      password: yup.string().label("Password").required(),
     });
 
     const { handleSubmit, isSubmitting, meta, setFieldError, values } = useForm({
@@ -63,10 +73,9 @@ export default defineComponent({
 
       try {
         await AuthService.login({ email, password });
-      } catch (e) {
+      } catch (e: any) {
         setFieldError("email", "Invalid credentials");
-
-        console.log("Form error", e);
+        notifyError(getError(e, "Failed to login"));
         return;
       }
 

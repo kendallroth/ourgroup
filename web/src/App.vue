@@ -5,6 +5,7 @@
     <div v-else class="app-loader">
       <v-progress-circular color="primary" indeterminte size="80" />
     </div>
+    <the-app-snackbar />
   </v-app>
 </template>
 
@@ -13,7 +14,7 @@ import { defineComponent, onMounted, ref } from "vue";
 import { useRouter, useRoute } from "vue-router";
 
 // Components
-import { TheAppHeader } from "@components/single";
+import { TheAppHeader, TheAppSnackbar } from "@components/single";
 
 // Utilities
 import { AccountService, AuthService } from "@services";
@@ -23,6 +24,7 @@ export default defineComponent({
   name: "App",
   components: {
     TheAppHeader,
+    TheAppSnackbar,
   },
   setup() {
     const router = useRouter();

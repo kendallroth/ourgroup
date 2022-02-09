@@ -38,7 +38,7 @@
 import { computed, defineComponent } from "vue";
 
 // Utilities
-import { useAccountVerifyResend } from "@composables";
+import { useAccountVerifyResend, useErrors, useSnackbar } from "@composables";
 import { useAccountStore } from "@store";
 
 export default defineComponent({
@@ -46,12 +46,14 @@ export default defineComponent({
   setup() {
     const accountStore = useAccountStore();
     const { resendVerification, resendDisabled } = useAccountVerifyResend();
+    const { getError } = useErrors();
+    const { notifyError } = useSnackbar();
 
     const onResendVerification = async () => {
       try {
         await resendVerification();
-      } catch {
-        // TODO: Display error snackbar
+      } catch (e: any) {
+        notifyError(getError(e, "Failed to resend verification"));
       }
     };
 

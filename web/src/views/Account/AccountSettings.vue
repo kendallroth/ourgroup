@@ -8,10 +8,10 @@
         <v-container>
           <v-row>
             <v-col>
-              <text-field :disabled="submitting" label="Old Password" name="oldPassword" />
+              <text-field :disabled="submitting" label="Old password" name="oldPassword" password />
             </v-col>
             <v-col>
-              <text-field :disabled="submitting" label="New Password" name="newPassword" />
+              <text-field :disabled="submitting" label="New password" name="newPassword" password />
             </v-col>
           </v-row>
         </v-container>
@@ -37,13 +37,14 @@ import * as yup from "yup";
 // Utilities
 import { PasswordService } from "@services";
 import { useAccountStore } from "@store";
-import { useErrors } from "@composables";
+import { useErrors, useSnackbar } from "@composables";
 
 export default defineComponent({
   name: "AccountSettings",
   setup() {
     const accountStore = useAccountStore();
     const { getError, hasError } = useErrors();
+    const { notifyError, notifySuccess } = useSnackbar();
 
     const schema = yup.object({
       newPassword: yup.string().label("Password").min(8).required(),
@@ -72,12 +73,13 @@ export default defineComponent({
           setFieldError("newPassword", "Password cannot match old password");
         }
 
-        // TODO: Display error snackbar
+        notifyError(getError(e, "Failed to change password"));
 
         return;
       }
 
-      // TODO: Display success snackbar
+      notifySuccess("Password has been changed");
+      // TODO: Determine why resetting fields does not reposition input labels?
       resetForm();
     };
 
