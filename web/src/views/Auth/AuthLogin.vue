@@ -1,26 +1,25 @@
 <template>
-  <auth-layout title="Login">
-    <form class="login-form" @submit="onLogin">
-      <text-field :disabled="submitting" autofocus density="default" label="Email" name="email" />
-      <text-field
-        :disabled="submitting"
-        label="Password"
-        density="default"
-        name="password"
-        password
-      />
-      <v-btn
-        :disabled="submitting"
-        block
-        color="primary"
-        size="large"
-        type="submit"
-        @click="onLogin"
-      >
-        Login
-      </v-btn>
-    </form>
-  </auth-layout>
+  <auth-title title="Login" />
+  <form class="login-form" @submit="onLogin">
+    <text-field :disabled="submitting" autofocus density="default" label="Email" name="email" />
+    <text-field
+      :disabled="submitting"
+      label="Password"
+      density="default"
+      name="password"
+      password
+    />
+    <v-btn :disabled="submitting" block color="primary" size="large" type="submit">Login</v-btn>
+    <v-btn
+      :disabled="submitting"
+      block
+      class="login-form__forgot-password"
+      variant="text"
+      to="/auth/password/forget"
+    >
+      Forgot Password?
+    </v-btn>
+  </form>
 </template>
 
 <script lang="ts">
@@ -30,7 +29,7 @@ import { useRoute } from "vue-router";
 import * as yup from "yup";
 
 // Components
-import AuthLayout from "./components/AuthLayout.vue";
+import AuthTitle from "./components/AuthTitle.vue";
 
 // Utilities
 import { AuthService } from "@services";
@@ -39,7 +38,7 @@ import { useErrors, useSnackbar } from "@composables";
 export default defineComponent({
   name: "AuthLogin",
   components: {
-    AuthLayout,
+    AuthTitle,
   },
   setup() {
     const hasSubmitted = ref(false);
@@ -65,9 +64,7 @@ export default defineComponent({
       () => (isSubmitting.value && meta.value.valid) || hasSubmitted.value,
     );
 
-    /**
-     * Authenticate user and store received credentials
-     */
+    /** Authenticate user and store received credentials */
     const onLogin = async (data: typeof values): Promise<void> => {
       const { email, password } = data;
 
@@ -98,5 +95,12 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .login-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.login-form__forgot-password {
+  align-self: center;
+  margin-top: 16px;
 }
 </style>

@@ -8,7 +8,6 @@
       </div>
       <div class="auth-layout__side auth-layout__side--right">
         <div class="auth-layout__side__content--right elevation-2">
-          <h2 class="auth-layout__title" type="h2">{{ title }}</h2>
           <slot name="default" />
         </div>
       </div>
@@ -22,12 +21,6 @@ import { defineComponent } from "vue";
 // Components
 export default defineComponent({
   name: "AuthLayout",
-  props: {
-    title: {
-      required: true,
-      type: String,
-    },
-  },
   setup() {
     const groupImg = new URL("/src/assets/good_team.png", import.meta.url).href;
 
@@ -39,12 +32,6 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-.auth-layout__title {
-  width: 100%;
-  margin-bottom: #{$spacing * 4}px;
-  text-align: center;
-}
-
 $max-page-width: $breakpoint-lg - 160;
 .auth-layout__content {
   display: flex;

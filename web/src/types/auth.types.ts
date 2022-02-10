@@ -16,8 +16,8 @@ export interface IAuthTokens {
 
 /** Email resend response */
 export interface IEmailResendResponse {
-  /** Expiry time for verification email (seconds) */
+  /** Expiry time for email (seconds) */
   expiry: number;
-  /** Time to wait between requests */
+  /** Time to wait between requests (seconds) */
   wait: number;
 }

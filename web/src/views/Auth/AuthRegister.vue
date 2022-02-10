@@ -1,27 +1,26 @@
 <template>
-  <auth-layout title="Create Account">
-    <form class="register-form" @submit="onCreateAccount">
-      <text-field :disabled="submitting" autofocus density="default" label="Name" name="name" />
-      <text-field :disabled="submitting" density="default" label="Email" name="email" />
-      <text-field
-        :disabled="submitting"
-        label="Password"
-        density="default"
-        name="password"
-        password
-      />
-      <v-btn
-        :disabled="submitting"
-        block
-        color="primary"
-        size="large"
-        type="submit"
-        @click="onCreateAccount"
-      >
-        Create Account
-      </v-btn>
-    </form>
-  </auth-layout>
+  <auth-title title="Create Account" />
+  <form class="register-form" @submit="onCreateAccount">
+    <text-field :disabled="submitting" autofocus density="default" label="Name" name="name" />
+    <text-field :disabled="submitting" density="default" label="Email" name="email" />
+    <text-field
+      :disabled="submitting"
+      label="Password"
+      density="default"
+      name="password"
+      password
+    />
+    <v-btn
+      :disabled="submitting"
+      block
+      color="primary"
+      size="large"
+      type="submit"
+      @click="onCreateAccount"
+    >
+      Create Account
+    </v-btn>
+  </form>
 </template>
 
 <script lang="ts">
@@ -30,7 +29,7 @@ import { computed, defineComponent, ref } from "vue";
 import * as yup from "yup";
 
 // Components
-import AuthLayout from "./components/AuthLayout.vue";
+import AuthTitle from "./components/AuthTitle.vue";
 
 // Utilities
 import { useErrors, useSnackbar } from "@composables";
@@ -39,7 +38,7 @@ import { AccountService } from "@services";
 export default defineComponent({
   name: "AuthRegister",
   components: {
-    AuthLayout,
+    AuthTitle,
   },
   setup() {
     const hasSubmitted = ref(false);
@@ -66,6 +65,7 @@ export default defineComponent({
       () => (isSubmitting.value && meta.value.valid) || hasSubmitted.value,
     );
 
+    /** Create a new account (requires verification) */
     const onCreateAccount = async (data: typeof values): Promise<void> => {
       const { email, name, password } = data;
 

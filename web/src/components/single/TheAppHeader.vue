@@ -31,21 +31,16 @@
                 {{ account?.name ?? account?.email }}
               </v-list-subheader>
               <v-list-item
+                v-for="menuItem in menuItems"
+                :key="menuItem.to"
+                :to="menuItem.to"
                 active-class="app-header__menu__item--active"
-                to="/account/profile"
                 @click="closeMenu"
               >
-                Profile
-              </v-list-item>
-              <v-list-item
-                active-class="app-header__menu__item--active"
-                to="/account/settings"
-                @click="closeMenu"
-              >
-                Settings
+                {{ menuItem.text }}
               </v-list-item>
               <v-divider />
-              <v-list-item to="/logout">
+              <v-list-item to="/auth/logout">
                 <v-icon :icon="icons.logout" class="mr-2" />
                 Logout
               </v-list-item>
@@ -53,8 +48,8 @@
           </v-menu>
         </template>
         <template v-else>
-          <v-btn class="mr-4" to="/register" variant="outlined">Sign Up</v-btn>
-          <v-btn to="/login">Log In</v-btn>
+          <v-btn class="mr-4" to="/auth/register" variant="outlined">Sign Up</v-btn>
+          <v-btn to="/auth/login">Log In</v-btn>
         </template>
       </template>
     </div>
@@ -69,6 +64,11 @@ import { mdiAlert, mdiFaceMan, mdiLogoutVariant } from "@mdi/js";
 // Utilities
 import config from "@config";
 import { useAccountStore } from "@store";
+
+interface IMenuItem {
+  text: string;
+  to: string;
+}
 
 export default defineComponent({
   name: "TheAppHeader",
@@ -90,6 +90,10 @@ export default defineComponent({
       profile: mdiFaceMan,
     };
     const logoImg = new URL("/src/assets/logo.png", import.meta.url).href;
+    const menuItems: IMenuItem[] = [
+      { text: "Profile", to: "/account/profile" },
+      { text: "Settings", to: "/account/settings" },
+    ];
 
     /**
      * Force menu to close when child item is clicked; required as 'closeOnContentClick' is not supported.
@@ -107,6 +111,7 @@ export default defineComponent({
       icons,
       isLogoutRoute,
       logoImg,
+      menuItems,
     };
   },
 });

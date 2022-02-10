@@ -10,6 +10,14 @@ export interface IAuthenticationResponse {
   accountId: string;
 }
 
+/** Email resend response */
+export interface IEmailResendResponse {
+  /** Expiry time for email (seconds) */
+  expiry: number;
+  /** Time to wait between requests (seconds) */
+  wait: number;
+}
+
 /** JWT configuration */
 export interface IJwtConfig {
   /** JWT expiry time (seconds) */

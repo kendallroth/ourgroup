@@ -11,9 +11,9 @@ import {
   ChangePasswordDto,
   ForgotPasswordRequestDto,
   ForgotPasswordResetDto,
-  IForgotPasswordResponse,
   IAuthenticationResponse,
   RefreshTokenDto,
+  IEmailResendResponse,
 } from "../types";
 
 @Controller("auth")
@@ -44,7 +44,7 @@ export class AuthController {
   @Post("/password/forget")
   async forgotPasswordRequest(
     @Body() payload: ForgotPasswordRequestDto,
-  ): Promise<IForgotPasswordResponse> {
+  ): Promise<IEmailResendResponse> {
     return this.forgotPasswordService.forgotPasswordRequest(payload);
   }
 

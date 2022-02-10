@@ -255,13 +255,13 @@ export class AccountService {
     const codeExpiry = codeExpiryLength[verificationType].expiry;
 
     // Prevent resending email verification codes too rapidly
-    const codeThrottle = await this.tokenService.checkCodeThrottling(
+    const codeThrottle = await this.tokenService.checkCodeThrottlingLast(
       account,
-      verificationType,
+      VerificationCodeType.ACCOUNT_VERIFICATION,
       MIN_VERIFICATION_CODE_REGEN_TIME,
     );
     if (!codeThrottle.valid) {
-      throw new ThrottleError("Wait before requesting again", codeThrottle.delay); // prettier-ignore
+      throw new ThrottleError("Wait between requesting account verification", codeThrottle.delay);
     }
 
     // Create email verification code and send to email

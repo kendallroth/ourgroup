@@ -2,7 +2,14 @@ import { RouteRecordRaw } from "vue-router";
 
 // Components
 import { AccountProfile, AccountRouter, AccountSettings } from "@views/Account";
-import { AuthLogin, AuthLogout, AuthRegister, AuthVerify } from "@views/Auth";
+import {
+  AuthLogin,
+  AuthLogout,
+  AuthPasswordForget,
+  AuthRegister,
+  AuthRouter,
+  AuthVerify,
+} from "@views/Auth";
 import Home from "@views/Home.vue";
 import PageNotFound from "@views/PageNotFound.vue";
 
@@ -13,42 +20,47 @@ import PageNotFound from "@views/PageNotFound.vue";
  *
  * There are also a few other related properties (not route protection)
  *   - isEmailCode          - Route handles an email code/link
- *
- * There are also additional meta properties:
- *   - noScrollOnParamChange - Prevent scrolling when the route parameters changes
  */
 
 const unauthenticatedRoutes: RouteRecordRaw[] = [
   {
-    path: "/logout",
-    name: "authLogout",
-    component: AuthLogout,
-    // NOTE: Should always be accessible for authentication cleanup purposes
-  },
-  {
-    path: "/login",
-    name: "authLogin",
-    component: AuthLogin,
-    meta: { requiresNoAuth: true },
-  },
-  {
-    path: "/register",
-    name: "authRegister",
-    component: AuthRegister,
-    meta: { requiresNoAuth: true },
-  },
-  {
-    path: "/verify/:code",
-    name: "authVerify",
-    component: AuthVerify,
+    path: "/auth",
+    name: "authRouter",
+    component: AuthRouter,
+    redirect: "/account/login",
+    children: [
+      {
+        path: "logout",
+        name: "authLogout",
+        component: AuthLogout,
+        // NOTE: Should always be accessible for authentication cleanup purposes
+      },
+      {
+        path: "login",
+        name: "authLogin",
+        component: AuthLogin,
+        meta: { requiresNoAuth: true },
+      },
+      {
+        path: "register",
+        name: "authRegister",
+        component: AuthRegister,
+        meta: { requiresNoAuth: true },
+      },
+      {
+        path: "verify/:code",
+        name: "authVerify",
+        component: AuthVerify,
+      },
+      {
+        path: "password/forget",
+        name: "authPasswordForget",
+        component: AuthPasswordForget,
+        meta: { requiresNoAuth: true },
+      },
+    ],
   },
   /*{
-    path: "/password/forget",
-    name: "passwordForget",
-    component: PasswordForget,
-    meta: { requiresNoAuth: true },
-  },
-  {
     path: "/password/reset/:code",
     name: "passwordReset",
     component: PasswordReset,

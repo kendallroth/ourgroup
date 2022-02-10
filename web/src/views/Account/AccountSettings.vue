@@ -51,13 +51,14 @@ export default defineComponent({
       oldPassword: yup.string().label("Current password").required(),
     });
 
-    const { handleSubmit, isSubmitting, resetForm, setFieldError, values } = useForm({
+    const { handleSubmit, isSubmitting, meta, resetForm, setFieldError, values } = useForm({
       validationSchema: schema,
       initialValues: {
         newPassword: "",
         oldPassword: "",
       },
     });
+    const submitting = computed(() => isSubmitting.value && meta.value.valid);
 
     /** Change current account password */
     const onChangePassword = async (data: typeof values): Promise<void> => {
@@ -85,7 +86,7 @@ export default defineComponent({
 
     return {
       account: computed(() => accountStore.account),
-      submitting: isSubmitting,
+      submitting,
       onChangePassword: handleSubmit(onChangePassword),
     };
   },

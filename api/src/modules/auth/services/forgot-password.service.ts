@@ -1,18 +1,21 @@
 import { forwardRef, Inject, Injectable } from "@nestjs/common";
 
 // Utilities
+import { ThrottleError } from "@common/exceptions";
 import { AccountService } from "@modules/account/services";
 import { AuthService } from "./auth.service";
 import { codeExpiryLength, TokenService } from "./token.service";
 
 // Types
 import {
-  VerificationCodeType,
+  IEmailResendResponse,
   ForgotPasswordRequestDto,
   ForgotPasswordResetDto,
-  IForgotPasswordResponse,
+  VerificationCodeType,
 } from "../types";
-import { ThrottleError } from "@common/exceptions";
+
+// Minimum seconds between resending forgot password email
+const MIN_RESEND_REGEN_TIME = 1 * 60;
 
 @Injectable()
 export class ForgotPasswordService {
@@ -31,7 +34,7 @@ export class ForgotPasswordService {
    */
   public async forgotPasswordRequest(
     credentials: ForgotPasswordRequestDto,
-  ): Promise<IForgotPasswordResponse> {
+  ): Promise<IEmailResendResponse> {
     const { email } = credentials;
 
     const verificationType = VerificationCodeType.PASSWORD_RESET;
@@ -39,21 +42,25 @@ export class ForgotPasswordService {
 
     // Invalid email should not inform account that there is no account with this email,
     //   which means "faking" a password reset (but no code is ever generated/sent).
+    // NOTE: Since no email is sent or verification code generated, the "wait" functionality
+    //         cannot be enforced (except UI). This means attackers could determine whether
+    //         an email address is valid by whether the timeout is enforced...
     const account = await this.accountService.findByEmail(email);
     if (!account) {
       return {
         expiry: codeExpiry,
+        wait: MIN_RESEND_REGEN_TIME,
       };
     }
 
-    // TODO: Check if there are existing password reset codes (disable) and prevent resending too quickly.
-    //         This should maybe be done in a separate "resend" workflow and utilize the "regenerateVerificationCode" function.
-    const codeThrottle = await this.tokenService.checkCodeThrottling(
+    // Prevent requesting password resets too rapidly
+    const codeThrottle = await this.tokenService.checkCodeThrottlingLast(
       account,
       VerificationCodeType.PASSWORD_RESET,
+      MIN_RESEND_REGEN_TIME,
     );
     if (!codeThrottle.valid) {
-      throw new ThrottleError("Wait before requesting again", codeThrottle.delay); // prettier-ignore
+      throw new ThrottleError("Wait between requesting password reset", codeThrottle.delay);
     }
 
     // Create password reset verification code and send to email
@@ -67,6 +74,7 @@ export class ForgotPasswordService {
 
     return {
       expiry: codeExpiry,
+      wait: MIN_RESEND_REGEN_TIME,
     };
   }
 
