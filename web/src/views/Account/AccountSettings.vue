@@ -38,6 +38,7 @@ import * as yup from "yup";
 import { PasswordService } from "@services";
 import { useAccountStore } from "@store";
 import { useErrors, useSnackbar } from "@composables";
+import { PASSWORD_REGEX } from "@utilities/validation.util";
 
 export default defineComponent({
   name: "AccountSettings",
@@ -47,7 +48,12 @@ export default defineComponent({
     const { notifyError, notifySuccess } = useSnackbar();
 
     const schema = yup.object({
-      newPassword: yup.string().label("Password").min(8).required(),
+      newPassword: yup
+        .string()
+        .label("Password")
+        .min(8)
+        .matches(PASSWORD_REGEX, "Password is invalid")
+        .required(),
       oldPassword: yup.string().label("Current password").required(),
     });
 

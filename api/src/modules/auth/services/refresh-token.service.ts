@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import dayjs from "dayjs";
 import { nanoid } from "nanoid";
 import { BadRequestException, forwardRef, Inject, Injectable } from "@nestjs/common";
@@ -10,15 +11,14 @@ import { Account } from "@modules/account/entities";
 import { jwtConfig as _jwtConfig } from "../config";
 import { RefreshToken } from "../entities";
 import { AuthService } from "./auth.service";
-import { PasswordService } from "./password.service";
 import { TokenService } from "./token.service";
 
 // Types
-import { IAuthenticationResponse, RefreshTokenDto } from "../types";
+import { IAuthenticationResponse, RefreshTokenDto, RefreshTokenRevokeDto } from "../types";
 
 @Injectable()
 export class RefreshTokenService {
-  public constructor(
+  constructor(
     @Inject(forwardRef(() => AuthService))
     private readonly authService: AuthService,
     @Inject(_jwtConfig.KEY)
@@ -26,7 +26,6 @@ export class RefreshTokenService {
     private readonly tokenService: TokenService,
     @InjectRepository(RefreshToken)
     private readonly refreshTokenRepo: Repository<RefreshToken>,
-    private readonly passwordService: PasswordService,
   ) {}
 
   /**
@@ -42,7 +41,9 @@ export class RefreshTokenService {
 
     const refreshTokenPlain = nanoid(refreshTokenLength);
 
-    // Refresh tokens are hashed before storage (using account ID as salt) to mitigate security risk
+    // NOTE: Refresh tokens SHOULD NOT be hashed with bcrypt, as hashed tokens cannot be easily
+    //         retrieved from the database, which requires a comparison loop through bcrypt comparison.
+    //         This is insanely slow (entire purpose of bcrypt algorithm) and must be avoided!
     const refreshTokenHashed = await this.hashRefreshToken(refreshTokenPlain, account.accountId);
 
     await this.refreshTokenRepo.save({
@@ -51,36 +52,19 @@ export class RefreshTokenService {
       account,
     });
 
-    // NOTE: Unhashed refresh token must be returned to account (not hashed version)!
+    // NOTE: Unhashed refresh token must be returned to account (not encrypted version)!
     return refreshTokenPlain;
   }
 
   /**
-   * Hash a plaintext refresh token (uses account ID as salt)
+   * Find an account refresh token
    *
-   * Refresh tokens are hashed with a stripped account ID
-   *
-   * @param   refreshToken - Plaintext refresh token
-   * @param   accountId    - Account ID (used as salt)
-   * @returns Hashed refresh token
+   * @param token - Refresh token and account
    */
-  public async hashRefreshToken(refreshToken: string, accountId: string): Promise<string> {
-    // NOTE: The only thing this does is make the refresh token salt less obvious,
-    //         it does not add any actual measure of security!
-    const accountIdSalt = accountId.replace(/-/g, "").split("").reverse().join("");
+  private async getRefreshToken(token: RefreshTokenDto): Promise<RefreshToken | null> {
+    const { refreshToken: refreshTokenString, accountId } = token;
 
-    return this.passwordService.hash(refreshToken, accountIdSalt);
-  }
-
-  /**
-   * Get a new auth token from a refresh token
-   *
-   * @param options
-   */
-  async refreshAuthToken(options: RefreshTokenDto): Promise<IAuthenticationResponse> {
-    const { refreshToken: refreshTokenString, accountId } = options;
-
-    // Refresh tokens are hashed upon storage (using account ID as salt) to mitigate security risk
+    // Refresh tokens are lightly hashed upon storage (account ID as salt) to reduce security risk
     const hashedToken = await this.hashRefreshToken(refreshTokenString, accountId);
 
     const refreshToken = await this.refreshTokenRepo.findOne({
@@ -90,6 +74,43 @@ export class RefreshTokenService {
         accountId: accountId,
       },
     });
+
+    return refreshToken ?? null;
+  }
+
+  /**
+   * Lightly hash a refresh token (using account ID as salt)
+   *
+   * NOTE: This does not entirely mitigate security risks, but is better than storing plaintext!
+   *         Avoid using bcrypt as it is extremely slow for comparisons!
+   *
+   * @param   refreshToken - Raw refresh token
+   * @param   accountId    - Account ID (used as salt)
+   * @returns Hashed refresh token
+   */
+  async hashRefreshToken(refreshToken: string, accountId: string): Promise<string> {
+    // NOTE: The only thing this does is make the refresh token salt less obvious,
+    //         it does not add any actual measure of security!
+    const accountIdSalt = accountId.replace(/-/g, "").split("").reverse().join("");
+
+    return new Promise((resolve, reject) => {
+      const { refreshTokenLength: length, refreshTokenRounds: rounds } = this.jwtConfig;
+
+      crypto.pbkdf2(refreshToken, accountIdSalt, rounds, length, "sha512", (error, hashed) => {
+        if (error) return reject(error);
+
+        resolve(hashed.toString("base64"));
+      });
+    });
+  }
+
+  /**
+   * Get a new auth token from a refresh token
+   *
+   * @param payload - Refresh token/account
+   */
+  async refreshAuthToken(payload: RefreshTokenDto): Promise<IAuthenticationResponse> {
+    const refreshToken = await this.getRefreshToken(payload);
     if (!refreshToken) {
       throw new BadRequestException("Invalid refresh token");
     }
@@ -103,5 +124,21 @@ export class RefreshTokenService {
     await this.refreshTokenRepo.save(refreshToken);
 
     return this.authService.createAuthTokens(refreshToken.account);
+  }
+
+  /**
+   * Ensure a refresh token is revoked
+   *
+   * Can be used during logout to ensure refresh token cannot be used again!
+   *
+   * @param payload - Refresh token/account
+   */
+  async revokeRefreshToken(payload: RefreshTokenRevokeDto): Promise<void> {
+    const refreshToken = await this.getRefreshToken(payload);
+    // Not finding a refresh token when revoking should silently end (not a failure)
+    if (!refreshToken) return;
+
+    refreshToken.invalidatedAt = new Date();
+    await this.refreshTokenRepo.save(refreshToken);
   }
 }

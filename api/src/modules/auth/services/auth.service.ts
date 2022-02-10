@@ -65,35 +65,66 @@ export class AuthService {
   }
 
   /**
+   * Create JWT tokens for an authenticated account
+   *
+   * @param   account - Authenticated account
+   * @returns JWT tokens
+   */
+  async createAuthTokens(account: Account): Promise<IAuthenticationResponse> {
+    const { jwtExpirySeconds } = this.jwtConfig;
+
+    const token = this.generateAuthJwt(account);
+    // Refresh token is hashed before storage, but plaintext refresh token must be sent to account!
+    const refreshToken = await this.refreshTokenService.generateRefreshToken(account);
+
+    return {
+      expiresIn: jwtExpirySeconds,
+      refreshToken,
+      token,
+      accountId: account.accountId,
+    };
+  }
+
+  /**
    * Generate a JWT auth token
    *
    * @param   account - Authorized account
    * @returns JWT auth token
    */
-  generateAuthJwt(account: Account): string {
+  private generateAuthJwt(account: Account): string {
     return this.jwtService.sign({ email: account.email });
   }
 
   /**
-   * Login authentication using JWT workflow
+   * Get an account by local credentials
    *
-   * @param   credentials - Account credentials
-   * @returns Authentication JWT
+   * @param   credentials - Account local credentials
+   * @returns Account matching local credentials
    */
-  public async login(credentials: AuthLoginDto): Promise<IAuthenticationResponse> {
+  async getLocalAccount(credentials: AuthLoginDto): Promise<Account | null> {
     const { email, password } = credentials;
 
     // Invalid email should not inform account that there is no account with this email!
-    const invalidCredentialsMessage = "Invalid authentication credentials";
     const account = await this.accountService.findByEmail(email);
-    if (!account) {
-      throw new UnauthorizedException(invalidCredentialsMessage);
-    }
+    if (!account) return null;
 
     const passwordHash = await this.accountService.getPasswordHash(account);
     const passwordMatches = await this.passwordService.verify(password, passwordHash);
-    if (!passwordMatches) {
-      throw new UnauthorizedException(invalidCredentialsMessage);
+    return passwordMatches ? account : null;
+  }
+
+  /**
+   * Respond to Passport-managed login
+   *
+   * NOTE: Credential comparison is managed by Passport auth guards (including local auth).
+   *
+   * @param   account - Authenticated user
+   * @returns Authentication JWT
+   */
+  async login(account: Account): Promise<IAuthenticationResponse> {
+    // NOTE: This should not be possible (but is a safety measure)!
+    if (!account) {
+      throw new UnauthorizedException("Invalid authentication credentials");
     }
 
     // Track the last time a account signed in
@@ -126,26 +157,5 @@ export class AuthService {
     }
 
     await this.accountService.setPassword(account, password);
-  }
-
-  /**
-   * Create JWT tokens for an authenticated account
-   *
-   * @param   account - Authenticated account
-   * @returns JWT tokens
-   */
-  public async createAuthTokens(account: Account): Promise<IAuthenticationResponse> {
-    const { jwtExpirySeconds } = this.jwtConfig;
-
-    const token = this.generateAuthJwt(account);
-    // Refresh token is hashed before storage, but plaintext refresh token must be sent to account!
-    const refreshToken = await this.refreshTokenService.generateRefreshToken(account);
-
-    return {
-      expiresIn: jwtExpirySeconds,
-      refreshToken,
-      token,
-      accountId: account.accountId,
-    };
   }
 }

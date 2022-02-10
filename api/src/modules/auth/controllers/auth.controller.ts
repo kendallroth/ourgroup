@@ -1,19 +1,19 @@
-import { Body, Controller, Request, Post, UseGuards, Patch } from "@nestjs/common";
+import { Body, Controller, Request, Post, UseGuards, Patch, Delete } from "@nestjs/common";
 
 // Utilities
-import { JwtAuthGuard } from "@common/guards";
+import { AccountAuthenticatedGuard, LocalAuthGuard } from "@common/guards";
 import { AuthService, ForgotPasswordService, RefreshTokenService } from "../services";
 
 // Types
 import { AuthenticatedRequest } from "@common/types";
 import {
-  AuthLoginDto,
   ChangePasswordDto,
   ForgotPasswordRequestDto,
   ForgotPasswordResetDto,
   IAuthenticationResponse,
   RefreshTokenDto,
   IEmailResendResponse,
+  RefreshTokenRevokeDto,
 } from "../types";
 
 @Controller("auth")
@@ -25,13 +25,14 @@ export class AuthController {
   ) {}
 
   /** Authentication login */
+  @UseGuards(LocalAuthGuard)
   @Post("/login")
-  async authLogin(@Body() payload: AuthLoginDto): Promise<IAuthenticationResponse> {
-    return this.authService.login(payload);
+  async authLogin(@Request() req: AuthenticatedRequest): Promise<IAuthenticationResponse> {
+    return this.authService.login(req.account);
   }
 
   /** Change authenticated account's password */
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AccountAuthenticatedGuard)
   @Patch("/password/change")
   async changePassword(
     @Body() payload: ChangePasswordDto,
@@ -56,7 +57,13 @@ export class AuthController {
 
   /** Refresh account's auth token using refresh token */
   @Post("/refresh-token")
-  async refreshToken(@Body() payload: RefreshTokenDto): Promise<IAuthenticationResponse> {
+  async refreshTokenGet(@Body() payload: RefreshTokenDto): Promise<IAuthenticationResponse> {
     return this.refreshTokenService.refreshAuthToken(payload);
+  }
+
+  /** Ensure a refresh token is revoked */
+  @Delete("/refresh-token")
+  async refreshTokenDelete(@Body() payload: RefreshTokenRevokeDto): Promise<void> {
+    return this.refreshTokenService.revokeRefreshToken(payload);
   }
 }

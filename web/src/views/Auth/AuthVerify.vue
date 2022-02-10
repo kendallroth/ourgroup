@@ -51,7 +51,7 @@ export default defineComponent({
     const route = useRoute();
 
     /** Link to coninue after verifying account */
-    const continueLink = computed(() => (accountStore.authenticated ? "/" : "/login"));
+    const continueLink = computed(() => (accountStore.authenticated ? "/" : "/auth/login"));
 
     onBeforeMount(() => {
       checkVerificationCode();

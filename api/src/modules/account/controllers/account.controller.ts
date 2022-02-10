@@ -2,7 +2,7 @@ import { Body, Controller, Get, Patch, Post, Request, UseGuards } from "@nestjs/
 
 // Utilities
 import { AuthenticatedRequest } from "@common/types";
-import { JwtAuthGuard } from "@common/guards";
+import { AccountAuthenticatedGuard } from "@common/guards";
 import { AccountService } from "../services";
 
 // Types
@@ -21,14 +21,14 @@ export class AccountController {
   constructor(private readonly accountService: AccountService) {}
 
   /** Get current authenticated account information */
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AccountAuthenticatedGuard)
   @Get("/")
   async getAccountInfo(@Request() req: AuthenticatedRequest): Promise<IAccountPrivateInfo> {
     return this.accountService.getPrivateProfile(req.account);
   }
 
   /** Update current authenticated account information */
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AccountAuthenticatedGuard)
   @Patch("/")
   async updateAccountInfo(
     @Request() req: AuthenticatedRequest,

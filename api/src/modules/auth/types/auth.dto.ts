@@ -44,3 +44,6 @@ export class RefreshTokenDto {
   @IsString({ message: "Refresh token is required" })
   refreshToken!: string;
 }
+
+/** Revoke a refresh token */
+export class RefreshTokenRevokeDto extends RefreshTokenDto {}

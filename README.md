@@ -33,3 +33,33 @@ However, a quickstart for returning developers is as follows:
 1. Copy example environment variable files and populate with valid values
 2. Start API, web, and database Docker containers with `docker-compose up`
 
+### Environment Variables
+
+Development environment variables are managed through Docker Compose and `.env` files. The root `.env` file is used to define variables used by multiple containers, and variables must be passed manually through Docker Compose (in project `environment` object). Project `.env` files are used to defined variables specific to containers, and are already passed through as the entire file to the specific container.
+
+The example environment variable files should each be copied into a matching .env file, then updated as necessary.
+
+```sh
+cp .env.example .env
+cp api/.env.example api/.env
+```
+
+> NOTE: Docker Compose stack must be restarted whenever environment variables are changed!
+
+> NOTE: The Docker Compose config can be viewed (with substitutions (env, etc) made!) by running `docker-compose config`.
+
+## Docker
+
+Docker Compose is used to manage the developer dependencies in containers, eliminating the need for local installations.
+
+```sh
+# Start the containers
+docker-compose up [NAMES?]
+# Attach to a running container
+docker-compose exec [NAME] sh
+# Stop all running containers
+docker stop $(docker container ls -q)
+```
+
+> NOTE: In case of database port conflicts (ie. Postgres installed locally), change the `DB_PORT` env variable and restart Docker Compose.
+
