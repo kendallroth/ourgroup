@@ -1,17 +1,17 @@
 import {
   BadRequestException,
-  ConflictException,
   forwardRef,
   HttpStatus,
   Inject,
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
+import { ConfigType } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import { ILike, Repository } from "typeorm";
 
 // Utilities
+import _appConfig from "@app/app.config";
 import { CodedError, ThrottleError } from "@common/exceptions";
 import {
   AuthService,
@@ -25,6 +25,7 @@ import { Account } from "../entities";
 import { IAuthenticationResponse, VerificationCodeType } from "@modules/auth/types";
 import {
   AccountCreateDto,
+  AccountUpdateDto,
   AccountVerifyDto,
   AccountVerifyResendDto,
   IAccountPrivateInfo,
@@ -39,9 +40,10 @@ export class AccountService {
   constructor(
     @InjectRepository(Account)
     private readonly accountRepo: Repository<Account>,
+    @Inject(_appConfig.KEY)
+    private readonly appConfig: ConfigType<typeof _appConfig>,
     @Inject(forwardRef(() => AuthService))
     private readonly authService: AuthService,
-    private readonly configService: ConfigService,
     @Inject(forwardRef(() => PasswordService))
     private readonly passwordService: PasswordService,
     @Inject(forwardRef(() => TokenService))
@@ -55,9 +57,10 @@ export class AccountService {
    * @returns Authentication tokens
    */
   async createAccount(payload: AccountCreateDto): Promise<IAuthenticationResponse> {
-    const { email: _email, password } = payload;
+    const { email: _email, name: _name, password } = payload;
 
     const email = _email.trim().toLowerCase();
+    const name = _name.trim();
 
     const emailAccount = await this.findByEmail(email);
     if (emailAccount) {
@@ -72,6 +75,7 @@ export class AccountService {
 
     const account = await this.accountRepo.save({
       email,
+      name,
       password: passwordHash,
       verifiedAt: null,
     });
@@ -84,8 +88,7 @@ export class AccountService {
     );
 
     // TODO: Send emails with SendGrid
-    const appUrl = this.configService.get<string>("app.webAppUrl");
-    const verificationUrl = `${appUrl}/verify/${verificationCode.code}`;
+    const verificationUrl = `${this.appConfig.webAppUrl}/auth/verify/${verificationCode.code}`;
     console.log(`[AccountCreate]: Use '${verificationCode.code}' to verify account (${verificationUrl})`); // prettier-ignore
 
     return this.authService.createAuthTokens(account);
@@ -180,6 +183,18 @@ export class AccountService {
   }
 
   /**
+   * Update a user's profile information
+   */
+  async updateProfile(account: Account, payload: AccountUpdateDto): Promise<IAccountPrivateInfo> {
+    const updatedAccount = await this.accountRepo.save({
+      id: account.id,
+      name: payload.name,
+    });
+
+    return this.getPrivateProfile({ ...account, ...updatedAccount });
+  }
+
+  /**
    * Verify a newly created account
    *
    * @param   payload - Account verification code
@@ -230,20 +245,24 @@ export class AccountService {
     }
 
     if (account.verifiedAt) {
-      throw new ConflictException("Account already verified");
+      throw new CodedError(
+        "ACCOUNT_VERIFY_RESEND__ALREADY_VERIFIED",
+        "Account already verified",
+        HttpStatus.CONFLICT,
+      );
     }
 
     const verificationType = VerificationCodeType.ACCOUNT_VERIFICATION;
     const codeExpiry = codeExpiryLength[verificationType].expiry;
 
     // Prevent resending email verification codes too rapidly
-    const codeThrottle = await this.tokenService.checkCodeThrottling(
+    const codeThrottle = await this.tokenService.checkCodeThrottlingLast(
       account,
-      verificationType,
+      VerificationCodeType.ACCOUNT_VERIFICATION,
       MIN_VERIFICATION_CODE_REGEN_TIME,
     );
     if (!codeThrottle.valid) {
-      throw new ThrottleError("Wait before requesting again", codeThrottle.delay); // prettier-ignore
+      throw new ThrottleError("Wait between requesting account verification", codeThrottle.delay);
     }
 
     // Create email verification code and send to email
@@ -253,12 +272,12 @@ export class AccountService {
     );
 
     // TODO: Send emails with SendGrid
-    const appUrl = this.configService.get<string>("app.webAppUrl");
-    const verificationUrl = `${appUrl}/verify/${verificationCode.code}`;
+    const verificationUrl = `${this.appConfig.webAppUrl}/auth/verify/${verificationCode.code}`;
     console.log(`[AccountVerification]: Use '${verificationCode.code}' to verify account (${verificationUrl})`); // prettier-ignore
 
     return {
       expiry: codeExpiry,
+      wait: MIN_VERIFICATION_CODE_REGEN_TIME,
     };
   }
 }

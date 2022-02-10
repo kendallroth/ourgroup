@@ -1,67 +1,117 @@
 <template>
-  <v-app theme="light">
-    <v-main>
-      <the-app-header />
-      <div class="app-construction">
-        <v-img
-          :src="underConstructionImg"
-          alt="Under Construction"
-          class="app-construction__image"
-          contain
-          width="500"
-        />
-        <h2 class="app-construction__text">Under Construction!</h2>
-      </div>
-      <div class="app-debug">
-        <v-card v-if="!loadingApi" class="app-debug__card" color="success">
-          <div class="app-debug__api-version">API: v{{ apiVersion }}</div>
-        </v-card>
-        <v-progress-circular v-else color="success" indeterminate size="24" width="2" />
-      </div>
-    </v-main>
+  <v-app class="app" theme="light">
+    <the-app-header :loading="loadingAuth" />
+    <router-view v-if="!loadingAuth" />
+    <div v-else class="app-loader">
+      <v-progress-circular color="primary" indeterminte size="80" />
+    </div>
+    <the-app-snackbar />
   </v-app>
 </template>
 
 <script lang="ts">
 import { defineComponent, onMounted, ref } from "vue";
+import { useRouter, useRoute } from "vue-router";
 
 // Components
-import { TheAppHeader } from "@components/single";
+import { TheAppHeader, TheAppSnackbar } from "@components/single";
 
 // Utilities
-import { ApiService } from "@services";
+import { AccountService, AuthService } from "@services";
+import { useAccountStore } from "@store";
 
 export default defineComponent({
   name: "App",
   components: {
     TheAppHeader,
+    TheAppSnackbar,
   },
   setup() {
-    const loadingApi = ref(false);
-    const apiVersion = ref<string>("N/A");
+    const router = useRouter();
+    const route = useRoute();
+    const accountStore = useAccountStore();
 
-    const underConstructionImg = new URL("/src/assets/under_construction.png", import.meta.url)
-      .href;
+    /** Whether authentication is loading (MUST start 'true' to avoid double mounting components!) */
+    const loadingAuth = ref(true);
 
     onMounted(async () => {
-      loadingApi.value = true;
+      loadingAuth.value = true;
 
-      const info = await ApiService.getApiInfo();
-      apiVersion.value = info.version ?? "N/A";
+      await loadAccount();
 
-      loadingApi.value = false;
+      loadingAuth.value = false;
     });
 
+    const loadAccount = async (): Promise<void> => {
+      // Only try fetching authenticated account if all auth tokens are present
+      const hasAuthTokens = AuthService.hasAuthTokens();
+      if (!hasAuthTokens) {
+        loadingAuth.value = false;
+        preventRouteAccess();
+        return;
+      }
+
+      loadingAuth.value = true;
+
+      let account = null;
+      try {
+        account = await AccountService.fetchAccount();
+      } catch (e) {
+        console.log("Error loading authenticated account", e);
+        loadingAuth.value = false;
+
+        // Auth token should be removed if authentiation fails
+        AuthService.removeAuthTokens();
+
+        preventRouteAccess();
+        return;
+      }
+
+      accountStore.setAccount(account);
+
+      loadingAuth.value = false;
+
+      if (!account) return;
+
+      // Redirect away from unauthenticated pages when authenticated
+      const { meta } = route;
+      if (meta && meta.requiresNoAuth) {
+        router.replace("/");
+      }
+    };
+
+    /**
+     * Protect authorized routes if user authentication fails
+     */
+    const preventRouteAccess = (): void => {
+      const { fullPath, matched } = route;
+
+      // Redirect away from authenticated pages if the viewer authentication fails.
+      const requiresAuth = matched?.some((m) => m.meta?.requiresAuth);
+      if (requiresAuth) {
+        router.replace({
+          path: "/login",
+          query: { redirectUrl: fullPath },
+        });
+
+        // TODO: Notify account that they are not authenticated
+        console.error("Account is not authenticated");
+      }
+    };
+
     return {
-      apiVersion,
-      loadingApi,
-      underConstructionImg,
+      loadingAuth,
     };
   },
 });
 </script>
 
 <style lang="scss" scoped>
+.app {
+  flex-grow: 1;
+  min-height: 100vh;
+}
+
 .app-construction {
   display: flex;
   flex-direction: column;
@@ -71,21 +121,5 @@ export default defineComponent({
 
 .app-construction__text {
   margin-top: 24px;
-}
-
-.app-debug {
-  position: fixed;
-  bottom: 24px;
-  left: 24px;
-}
-
-.app-debug__card {
-  padding: 8px 12px;
-}
-
-.app-debug__api-version {
-  font-size: 0.85rem;
-  font-family: monospace;
-  opacity: 0.8;
 }
 </style>

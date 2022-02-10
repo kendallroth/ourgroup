@@ -11,4 +11,6 @@ export interface IAccountPrivateInfo {
 export interface IAccountVerifyResendResponse {
   /** Expiry time for verification email (seconds) */
   expiry: number;
+  /** Time to wait between requests */
+  wait: number;
 }

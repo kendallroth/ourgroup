@@ -1,0 +1,37 @@
+// Default spacing utility
+$spacing: 8;
+
+// Base breakpoint values (used in calculations without `px` value)
+$breakpoint-xs: 0;
+$breakpoint-sm: 600;
+$breakpoint-md: 960;
+$breakpoint-lg: 1264;
+$breakpoint-xl: 1904;
+
+// Sizing
+// $btn-height: 40px;
+
+// Text
+// TODO: Several of the larger titles should use another font (see style guide)
+$text-titles: (
+  "h1": (
+    "size": 64px,
+    "height": 64px,
+    "weight": 500,
+  ),
+  "h2": (
+    "size": 48px,
+    "height": 48px,
+    "weight": 500,
+  ),
+  "h3": (
+    "size": 36px,
+    "height": 36px,
+    "weight": 500,
+  ),
+  "h4": (
+    "size": 24px,
+    "height": 24px,
+    "weight": 400,
+  ),
+);

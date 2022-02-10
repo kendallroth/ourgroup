@@ -119,7 +119,10 @@ export class AuthService {
     const oldPasswordHash = await this.accountService.getPasswordHash(account);
     const matchesOldPassword = await this.passwordService.verify(password, oldPasswordHash);
     if (matchesOldPassword) {
-      throw new BadRequestException("Password cannot match last password");
+      throw new CodedError(
+        "CHANGE_PASSWORD__PASSWORD_MATCHES_OLD",
+        "Password cannot match last password",
+      );
     }
 
     await this.accountService.setPassword(account, password);

@@ -4,9 +4,25 @@ import { createApp } from "vue";
 import App from "./App.vue";
 
 // Utilities
-import vuetify from "./plugins/vuetify";
-import { loadFonts } from "./plugins/webfontloader";
+import components from "@plugins/components";
+import filters from "@plugins/filters";
+import vuetify from "@plugins/vuetify";
+import { loadFonts } from "@plugins/webfontloader";
+import router from "@router";
+import { rootPiniaStore } from "@store";
+
+// Styles
+import "@styles/app.scss";
+import "@fontsource/mulish/400.css";
+import "@fontsource/mulish/500.css";
+import "@fontsource/mulish/600.css";
 
 loadFonts();
 
-createApp(App).use(vuetify).mount("#app");
+const app = createApp(App);
+
+app.config.globalProperties.$filters = filters;
+
+app.use(router).use(rootPiniaStore).use(vuetify).use(components);
+
+app.mount("#app");

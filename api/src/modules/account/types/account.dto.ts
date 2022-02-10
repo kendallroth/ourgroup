@@ -11,11 +11,23 @@ export class AccountCreateDto {
 
   @IsString()
   @IsNotEmpty()
+  @MinLength(4)
+  name!: string;
+
+  @IsString()
+  @IsNotEmpty()
   @MinLength(8)
   @Matches(PASSWORD_REGEX, {
     message: "Password is invalid",
   })
   password!: string;
+}
+
+export class AccountUpdateDto {
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(4)
+  name!: string;
 }
 
 export class AccountVerifyDto {
