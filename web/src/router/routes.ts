@@ -6,6 +6,7 @@ import {
   AuthLogin,
   AuthLogout,
   AuthPasswordForget,
+  AuthPasswordReset,
   AuthRegister,
   AuthRouter,
   AuthVerify,
@@ -58,14 +59,14 @@ const unauthenticatedRoutes: RouteRecordRaw[] = [
         component: AuthPasswordForget,
         meta: { requiresNoAuth: true },
       },
+      {
+        path: "password/reset/:code",
+        name: "authPasswordReset",
+        component: AuthPasswordReset,
+        meta: { requiresNoAuth: true },
+      },
     ],
   },
-  /*{
-    path: "/password/reset/:code",
-    name: "passwordReset",
-    component: PasswordReset,
-    meta: { requiresNoAuth: true },
-  },*/
 ];
 
 const authenticatedRoutes: RouteRecordRaw[] = [

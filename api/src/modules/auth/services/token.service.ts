@@ -72,19 +72,19 @@ export class TokenService {
   /**
    * Validate a usable code for several common use cases
    *
-   * @param  code    - Usable code
-   * @param  message - Usable code failure message type
+   * @param  code          - Usable code
+   * @param  messagePrefix - Usable code failure message type
    * @throws Errors on verification failures (invalid, expired, invalidated, used)
    */
-  public checkUsableCode(code: UsableTokenEntity | null, message: string): void {
+  public checkUsableCode(code: UsableTokenEntity | null, messagePrefix: string): void {
     if (!code) {
-      throw new BadRequestException(`${message} not found`);
+      throw new BadRequestException(`${messagePrefix} not found`);
     } else if (this.checkIfUsed(code)) {
-      throw new BadRequestException(`${message} has already been used`);
+      throw new BadRequestException(`${messagePrefix} has already been used`);
     } else if (this.checkIfInvalidated(code)) {
-      throw new BadRequestException(`${message} has been invalidated`);
+      throw new BadRequestException(`${messagePrefix} has been invalidated`);
     } else if (this.checkIfExpired(code)) {
-      throw new BadRequestException(`${message} has already expired`);
+      throw new BadRequestException(`${messagePrefix} has already expired`);
     }
   }
 
@@ -221,6 +221,12 @@ export class TokenService {
     return verificationCode ?? null;
   }
 
+  /** Mark a verification code as used (performs no validation!) */
+  public async markUsed(code: VerificationCode): Promise<VerificationCode> {
+    code.usedAt = new Date();
+    return this.verificationCodeRepo.save(code);
+  }
+
   /**
    * Generate a new verification code and invalidate a previous unused one (possibly expired)
    *
@@ -280,8 +286,7 @@ export class TokenService {
     // NOTE: Throws errors to control flow!
     this.checkUsableCode(verificationCode, "Verification code");
 
-    verificationCode.usedAt = new Date();
-    await this.verificationCodeRepo.save(verificationCode);
+    await this.markUsed(verificationCode);
 
     return verificationCode.account;
   }

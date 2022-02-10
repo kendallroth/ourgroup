@@ -6,11 +6,12 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
+import { ConfigType } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import { ILike, Repository } from "typeorm";
 
 // Utilities
+import _appConfig from "@app/app.config";
 import { CodedError, ThrottleError } from "@common/exceptions";
 import {
   AuthService,
@@ -39,9 +40,10 @@ export class AccountService {
   constructor(
     @InjectRepository(Account)
     private readonly accountRepo: Repository<Account>,
+    @Inject(_appConfig.KEY)
+    private readonly appConfig: ConfigType<typeof _appConfig>,
     @Inject(forwardRef(() => AuthService))
     private readonly authService: AuthService,
-    private readonly configService: ConfigService,
     @Inject(forwardRef(() => PasswordService))
     private readonly passwordService: PasswordService,
     @Inject(forwardRef(() => TokenService))
@@ -86,8 +88,7 @@ export class AccountService {
     );
 
     // TODO: Send emails with SendGrid
-    const appUrl = this.configService.get<string>("app.webAppUrl");
-    const verificationUrl = `${appUrl}/verify/${verificationCode.code}`;
+    const verificationUrl = `${this.appConfig.webAppUrl}/auth/verify/${verificationCode.code}`;
     console.log(`[AccountCreate]: Use '${verificationCode.code}' to verify account (${verificationUrl})`); // prettier-ignore
 
     return this.authService.createAuthTokens(account);
@@ -271,8 +272,7 @@ export class AccountService {
     );
 
     // TODO: Send emails with SendGrid
-    const appUrl = this.configService.get<string>("app.webAppUrl");
-    const verificationUrl = `${appUrl}/verify/${verificationCode.code}`;
+    const verificationUrl = `${this.appConfig.webAppUrl}/auth/verify/${verificationCode.code}`;
     console.log(`[AccountVerification]: Use '${verificationCode.code}' to verify account (${verificationUrl})`); // prettier-ignore
 
     return {

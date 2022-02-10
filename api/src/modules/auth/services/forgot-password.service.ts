@@ -1,6 +1,8 @@
 import { forwardRef, Inject, Injectable } from "@nestjs/common";
+import { ConfigType } from "@nestjs/config";
 
 // Utilities
+import _appConfig from "@app/app.config";
 import { ThrottleError } from "@common/exceptions";
 import { AccountService } from "@modules/account/services";
 import { AuthService } from "./auth.service";
@@ -20,10 +22,12 @@ const MIN_RESEND_REGEN_TIME = 1 * 60;
 @Injectable()
 export class ForgotPasswordService {
   constructor(
-    private readonly authService: AuthService,
-    private readonly tokenService: TokenService,
     @Inject(forwardRef(() => AccountService))
     private readonly accountService: AccountService,
+    private readonly authService: AuthService,
+    private readonly tokenService: TokenService,
+    @Inject(_appConfig.KEY)
+    private readonly appConfig: ConfigType<typeof _appConfig>,
   ) {}
 
   /**
@@ -70,7 +74,8 @@ export class ForgotPasswordService {
     );
 
     // TODO: Send emails with SendGrid
-    console.log(`[PasswordReset]: Use '${verificationCode.code}' to reset password`); // prettier-ignore
+    const verificationUrl = `${this.appConfig.webAppUrl}/auth/password/reset/${verificationCode.code}`;
+    console.log(`[PasswordReset]: Use '${verificationCode.code}' to reset password (${verificationUrl})`); // prettier-ignore
 
     return {
       expiry: codeExpiry,
@@ -87,15 +92,19 @@ export class ForgotPasswordService {
   public async forgotPasswordReset(credentials: ForgotPasswordResetDto): Promise<void> {
     const { code, password } = credentials;
 
-    // TODO: Must check password validity BEFORE marking verification code as used!
-
-    // Validate and use a verification code (throws errors if invalid)
-    const account = await this.tokenService.useVerificationCode(
+    const verificationCode = await this.tokenService.getVerificationCode(
       code,
       VerificationCodeType.PASSWORD_RESET,
     );
 
+    // Ensure password reset token is valid before attempting password reset,
+    //   as user may try invalid password (should not invalidate token)!
+    this.tokenService.checkUsableCode(verificationCode, "Forgot password code");
+
     // NOTE: Throws error if account attempts to change password to last password!
-    await this.authService.setPassword(account, password);
+    await this.authService.setPassword(verificationCode!.account, password);
+
+    // Validate and use a verification code (throws errors if invalid)
+    await this.tokenService.markUsed(verificationCode!);
   }
 }

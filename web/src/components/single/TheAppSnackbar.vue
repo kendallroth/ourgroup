@@ -39,7 +39,7 @@ export default defineComponent({
   position: fixed;
   overflow: hidden;
 
-  bottom: 0;
+  bottom: 8px;
   left: 8px;
 }
 
