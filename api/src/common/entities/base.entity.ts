@@ -1,16 +1,13 @@
-import { CreateDateColumn, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { CreateDateColumn, UpdateDateColumn } from "typeorm";
 
 /**
  * Base entity class
  *
- * NOTE: Entity contains an auto-generated primary ID; if this behaviour is not desired,
- *         avoid inheriting from this class (and add timestamps manually)!
+ * NOTE: Entity does not contain an ID field as the pseudo-standard "id"
+ *         identifier name conveys no meaning apart from its entity, and
+ *         leads to decreased readability in code/database queries.
  */
 export abstract class BaseEntity {
-  /** Entity ID */
-  @PrimaryGeneratedColumn("uuid")
-  id!: string;
-
   /** Date entity was created */
   @CreateDateColumn({ name: "created_at", type: "timestamptz" })
   createdAt!: Date;

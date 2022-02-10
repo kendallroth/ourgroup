@@ -115,7 +115,7 @@ export class AccountService {
     // NOTE: We know the account exists because a account entity was provided
     const hashResult = await this.accountRepo.query(
       `SELECT password FROM "account" WHERE id = $1;`,
-      [account.id],
+      [account.accountId],
     );
     if (!hashResult || !hashResult.length) return "";
 
@@ -130,7 +130,7 @@ export class AccountService {
    */
   async getPrivateProfile(account: Account): Promise<IAccountPrivateInfo> {
     return {
-      id: account.id,
+      accountId: account.accountId,
       createdAt: account.createdAt,
       email: account.email,
       name: account.name,
@@ -187,7 +187,7 @@ export class AccountService {
    */
   async updateProfile(account: Account, payload: AccountUpdateDto): Promise<IAccountPrivateInfo> {
     const updatedAccount = await this.accountRepo.save({
-      id: account.id,
+      accountId: account.accountId,
       name: payload.name,
     });
 

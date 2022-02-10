@@ -43,7 +43,7 @@ export class RefreshTokenService {
     const refreshTokenPlain = nanoid(refreshTokenLength);
 
     // Refresh tokens are hashed before storage (using account ID as salt) to mitigate security risk
-    const refreshTokenHashed = await this.hashRefreshToken(refreshTokenPlain, account.id);
+    const refreshTokenHashed = await this.hashRefreshToken(refreshTokenPlain, account.accountId);
 
     await this.refreshTokenRepo.save({
       expiresAt: dayjs().add(refreshTokenExpirySeconds, "seconds").toDate(),

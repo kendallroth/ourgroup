@@ -145,7 +145,7 @@ export class AuthService {
       expiresIn: jwtExpirySeconds,
       refreshToken,
       token,
-      accountId: account.id,
+      accountId: account.accountId,
     };
   }
 }

@@ -26,7 +26,7 @@
             variant="outlined"
             @click="onResendVerification"
           >
-            Verify
+            Resend
           </v-btn>
         </v-alert>
       </template>
