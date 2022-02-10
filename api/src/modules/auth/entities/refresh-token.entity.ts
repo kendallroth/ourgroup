@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
 // Types
 import { UsableTokenEntity } from "@common/entities";
@@ -6,6 +6,9 @@ import { Account } from "@modules/account/entities";
 
 @Entity({ name: "refresh_token" })
 export class RefreshToken extends UsableTokenEntity {
+  @PrimaryGeneratedColumn("uuid", { name: "token_id" })
+  tokenId!: string;
+
   /**
    * Refresh token
    *

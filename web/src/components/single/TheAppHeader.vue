@@ -16,7 +16,7 @@
       <v-spacer />
       <template v-if="!loading && !isLogoutRoute">
         <template v-if="accountStore.authenticated">
-          <v-chip v-if="!accountStore.verified" class="mr-2 text-error" color="white">
+          <v-chip v-if="!accountStore.verified" class="mr-2">
             <v-icon :icon="icons.alert" left small />
             Unverified account
           </v-chip>

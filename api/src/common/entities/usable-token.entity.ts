@@ -1,4 +1,4 @@
-import { Column } from "typeorm";
+import { Column, PrimaryGeneratedColumn } from "typeorm";
 
 // Types
 import { BaseEntity } from "./base.entity";
@@ -9,6 +9,10 @@ import { BaseEntity } from "./base.entity";
  * NOTE: Provides fields for invalidation, expiry, and usage
  */
 export abstract class UsableTokenEntity extends BaseEntity {
+  /** Token ID */
+  @PrimaryGeneratedColumn("uuid", { name: "token_id" })
+  tokenId!: string;
+
   /** Date when token was deactivated */
   @Column("timestamptz", { name: "invalidated_at", nullable: true })
   invalidatedAt!: Date | null;

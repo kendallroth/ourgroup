@@ -33,7 +33,7 @@ class AccountService {
     return {
       email: account.email,
       name: account.name ?? null,
-      id: account.id,
+      accountId: account.accountId,
       verifiedAt: account.verifiedAt ?? null,
     };
   }

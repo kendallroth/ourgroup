@@ -1,6 +1,6 @@
 /** Account information (private) */
 export interface IAccountPrivateInfo {
-  id: string;
+  accountId: string;
   createdAt: Date;
   email: string;
   name: string | null;

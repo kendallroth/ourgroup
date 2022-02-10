@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany } from "typeorm";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 // Utilities
 import { BaseEntity } from "@common/entities";
@@ -6,6 +6,9 @@ import { RefreshToken, VerificationCode } from "@modules/auth/entities";
 
 @Entity({ name: "account" })
 export class Account extends BaseEntity {
+  @PrimaryGeneratedColumn("uuid", { name: "account_id" })
+  accountId!: string;
+
   @Column("text", { unique: true })
   email!: string;
 
