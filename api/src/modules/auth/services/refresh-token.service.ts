@@ -27,7 +27,6 @@ export class RefreshTokenService {
     private readonly tokenService: TokenService,
     @InjectRepository(RefreshToken)
     private readonly refreshTokenRepo: Repository<RefreshToken>,
-    private readonly passwordService: PasswordService,
   ) {}
 
   /**

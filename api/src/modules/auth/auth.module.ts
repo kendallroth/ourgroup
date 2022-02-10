@@ -16,7 +16,7 @@ import {
   RefreshTokenService,
   TokenService,
 } from "./services";
-import { JwtStrategy } from "./utilities";
+import { JwtStrategy, LocalStrategy } from "./utilities";
 
 // NOTE: Non-standard approach necessary to access config in module file
 const jwtConfigInstance = jwtConfig();
@@ -43,6 +43,7 @@ const jwtConfigInstance = jwtConfig();
     AuthService,
     ForgotPasswordService,
     JwtStrategy,
+    LocalStrategy,
     PasswordService,
     RefreshTokenService,
     TokenService,

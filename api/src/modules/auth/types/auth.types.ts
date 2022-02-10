@@ -1,13 +1,13 @@
 /** Authentication response */
 export interface IAuthenticationResponse {
+  /** Authenticated account ID */
+  accountId: string;
   /** JWT token expiry time (seconds) */
   expiresIn: number;
   /** JWT refresh token */
   refreshToken: string;
   /** JWT token */
   token: string;
-  /** Authenticated account ID */
-  accountId: string;
 }
 
 /** Email resend response */
@@ -28,7 +28,7 @@ export interface IJwtConfig {
   refreshTokenExpirySeconds: number;
   /** Refresh token length */
   refreshTokenLength: number;
-  /** Refresh token encryption rounds */
+  /** Refresh token hashing rounds */
   refreshTokenRounds: number;
 }
 

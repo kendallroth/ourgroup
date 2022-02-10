@@ -1,5 +1,5 @@
 import { ExtractJwt, Strategy } from "passport-jwt";
-import { forwardRef, Inject, Injectable } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import { ConfigType } from "@nestjs/config";
 import { PassportStrategy } from "@nestjs/passport";
 
@@ -13,7 +13,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
     @Inject(_jwtConfig.KEY)
     private readonly jwtConfig: ConfigType<typeof _jwtConfig>,
-    @Inject(forwardRef(() => AccountService))
     private readonly accountService: AccountService,
   ) {
     super({
