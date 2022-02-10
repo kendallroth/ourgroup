@@ -11,15 +11,14 @@ import { Account } from "@modules/account/entities";
 import { jwtConfig as _jwtConfig } from "../config";
 import { RefreshToken } from "../entities";
 import { AuthService } from "./auth.service";
-import { PasswordService } from "./password.service";
 import { TokenService } from "./token.service";
 
 // Types
-import { IAuthenticationResponse, RefreshTokenDto } from "../types";
+import { IAuthenticationResponse, RefreshTokenDto, RefreshTokenRevokeDto } from "../types";
 
 @Injectable()
 export class RefreshTokenService {
-  public constructor(
+  constructor(
     @Inject(forwardRef(() => AuthService))
     private readonly authService: AuthService,
     @Inject(_jwtConfig.KEY)
@@ -58,6 +57,28 @@ export class RefreshTokenService {
   }
 
   /**
+   * Find an account refresh token
+   *
+   * @param token - Refresh token and account
+   */
+  private async getRefreshToken(token: RefreshTokenDto): Promise<RefreshToken | null> {
+    const { refreshToken: refreshTokenString, accountId } = token;
+
+    // Refresh tokens are lightly hashed upon storage (account ID as salt) to reduce security risk
+    const hashedToken = await this.hashRefreshToken(refreshTokenString, accountId);
+
+    const refreshToken = await this.refreshTokenRepo.findOne({
+      relations: ["account"],
+      where: {
+        token: hashedToken,
+        accountId: accountId,
+      },
+    });
+
+    return refreshToken ?? null;
+  }
+
+  /**
    * Lightly hash a refresh token (using account ID as salt)
    *
    * NOTE: This does not entirely mitigate security risks, but is better than storing plaintext!
@@ -86,21 +107,10 @@ export class RefreshTokenService {
   /**
    * Get a new auth token from a refresh token
    *
-   * @param options
+   * @param payload - Refresh token/account
    */
-  async refreshAuthToken(options: RefreshTokenDto): Promise<IAuthenticationResponse> {
-    const { refreshToken: refreshTokenString, accountId } = options;
-
-    // Refresh tokens are lightly hashed upon storage (account ID as salt) to reduce security risk
-    const hashedToken = await this.hashRefreshToken(refreshTokenString, accountId);
-
-    const refreshToken = await this.refreshTokenRepo.findOne({
-      relations: ["account"],
-      where: {
-        token: hashedToken,
-        accountId: accountId,
-      },
-    });
+  async refreshAuthToken(payload: RefreshTokenDto): Promise<IAuthenticationResponse> {
+    const refreshToken = await this.getRefreshToken(payload);
     if (!refreshToken) {
       throw new BadRequestException("Invalid refresh token");
     }
@@ -114,5 +124,21 @@ export class RefreshTokenService {
     await this.refreshTokenRepo.save(refreshToken);
 
     return this.authService.createAuthTokens(refreshToken.account);
+  }
+
+  /**
+   * Ensure a refresh token is revoked
+   *
+   * Can be used during logout to ensure refresh token cannot be used again!
+   *
+   * @param payload - Refresh token/account
+   */
+  async revokeRefreshToken(payload: RefreshTokenRevokeDto): Promise<void> {
+    const refreshToken = await this.getRefreshToken(payload);
+    // Not finding a refresh token when revoking should silently end (not a failure)
+    if (!refreshToken) return;
+
+    refreshToken.invalidatedAt = new Date();
+    await this.refreshTokenRepo.save(refreshToken);
   }
 }

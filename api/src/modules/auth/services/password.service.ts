@@ -24,7 +24,7 @@ export class PasswordService {
    * @param   plainText - Plain text string
    * @returns Hashed string
    */
-  public async hash(plainText: string): Promise<string> {
+  async hash(plainText: string): Promise<string> {
     const { hashSaltRounds } = this.passwordConfig;
     return bcrypt.hash(plainText, hashSaltRounds);
   }
@@ -36,7 +36,7 @@ export class PasswordService {
    * @param   originalHash - Hashed string
    * @returns Whether plaintext string matches hash
    */
-  public async verify(plainText: string, originalHash: string): Promise<boolean> {
+  async verify(plainText: string, originalHash: string): Promise<boolean> {
     return bcrypt.compare(plainText, originalHash);
   }
 }

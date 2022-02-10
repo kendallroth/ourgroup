@@ -66,8 +66,8 @@ class AuthService {
    * Logout authenticated user and clean up state
    */
   async logout(): Promise<void> {
-    // Clean up authentication tokens
-    this.removeAuthTokens();
+    // Revoke/clean up authentication tokens
+    await this.removeAuthTokens();
 
     const accountStore = useAccountStore();
     accountStore.clearAccount();
@@ -106,11 +106,34 @@ class AuthService {
   }
 
   /**
-   * Remove authentication tokens
+   * Revoke/invalidate refresh tokens
+   *
+   * NOTE: Does not necessarily need to be awaited (errors are handled silently)!
+   */
+  async revokeAuthTokens(): Promise<void> {
+    if (!this.accountId || !this.refreshToken) return;
+
+    try {
+      await ApiService.api.delete("/auth/refresh-token", {
+        data: {
+          accountId: this.accountId,
+          refreshToken: this.refreshToken,
+        },
+      });
+    } catch {
+      // NOTE: Revoking token errors can safely be ignored
+    }
+  }
+
+  /**
+   * Clean up local authentication tokens and revoke remote tokens
    *
    * NOTE: Tokens are stored in memory and local storage
+   * NOTE: Does not necessarily need to be awaited (errors are handled silently)!
    */
-  removeAuthTokens(): void {
+  async removeAuthTokens(): Promise<void> {
+    this.revokeAuthTokens();
+
     this.authToken = null;
     this.refreshToken = null;
     this.accountId = null;

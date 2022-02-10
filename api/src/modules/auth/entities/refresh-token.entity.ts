@@ -18,7 +18,7 @@ export class RefreshToken extends UsableTokenEntity {
   token!: string;
 
   @Column("uuid", { name: "account_id" })
-  public accountId!: string;
+  accountId!: string;
 
   /** Refresh token owner */
   @ManyToOne(() => Account, (account) => account.refreshTokens, { nullable: false })

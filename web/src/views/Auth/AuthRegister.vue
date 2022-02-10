@@ -34,6 +34,7 @@ import AuthTitle from "./components/AuthTitle.vue";
 // Utilities
 import { useErrors, useSnackbar } from "@composables";
 import { AccountService } from "@services";
+import { PASSWORD_REGEX } from "@utilities/validation.util";
 
 export default defineComponent({
   name: "AuthRegister",
@@ -49,7 +50,12 @@ export default defineComponent({
     const schema = yup.object({
       email: yup.string().label("Email").email().required(),
       name: yup.string().label("Name").min(4).required(),
-      password: yup.string().label("Password").min(8).required(),
+      password: yup
+        .string()
+        .label("Password")
+        .min(8)
+        .matches(PASSWORD_REGEX, "Password is invalid")
+        .required(),
     });
 
     const { handleSubmit, isSubmitting, meta, setFieldError, values } = useForm({

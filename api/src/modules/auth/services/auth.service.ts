@@ -70,7 +70,7 @@ export class AuthService {
    * @param   account - Authenticated account
    * @returns JWT tokens
    */
-  public async createAuthTokens(account: Account): Promise<IAuthenticationResponse> {
+  async createAuthTokens(account: Account): Promise<IAuthenticationResponse> {
     const { jwtExpirySeconds } = this.jwtConfig;
 
     const token = this.generateAuthJwt(account);
@@ -101,7 +101,7 @@ export class AuthService {
    * @param   credentials - Account local credentials
    * @returns Account matching local credentials
    */
-  public async getLocalAccount(credentials: AuthLoginDto): Promise<Account | null> {
+  async getLocalAccount(credentials: AuthLoginDto): Promise<Account | null> {
     const { email, password } = credentials;
 
     // Invalid email should not inform account that there is no account with this email!
@@ -121,7 +121,7 @@ export class AuthService {
    * @param   account - Authenticated user
    * @returns Authentication JWT
    */
-  public async login(account: Account): Promise<IAuthenticationResponse> {
+  async login(account: Account): Promise<IAuthenticationResponse> {
     // NOTE: This should not be possible (but is a safety measure)!
     if (!account) {
       throw new UnauthorizedException("Invalid authentication credentials");

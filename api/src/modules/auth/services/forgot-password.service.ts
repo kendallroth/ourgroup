@@ -36,7 +36,7 @@ export class ForgotPasswordService {
    * @param   credentials - Account credentials (email)
    * @returns Password reset information
    */
-  public async forgotPasswordRequest(
+  async forgotPasswordRequest(
     credentials: ForgotPasswordRequestDto,
   ): Promise<IEmailResendResponse> {
     const { email } = credentials;
@@ -89,7 +89,7 @@ export class ForgotPasswordService {
    * @param  credentials - Password reset credentials
    * @throws Error if account attempts to set password to last password
    */
-  public async forgotPasswordReset(credentials: ForgotPasswordResetDto): Promise<void> {
+  async forgotPasswordReset(credentials: ForgotPasswordResetDto): Promise<void> {
     const { code, password } = credentials;
 
     const verificationCode = await this.tokenService.getVerificationCode(

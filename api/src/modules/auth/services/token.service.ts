@@ -31,7 +31,7 @@ export const codeExpiryLength: Record<VerificationCodeType, IVerificationCodeCon
 
 @Injectable()
 export class TokenService {
-  public constructor(
+  constructor(
     @InjectRepository(VerificationCode)
     private readonly verificationCodeRepo: Repository<VerificationCode>,
   ) {}
@@ -42,7 +42,7 @@ export class TokenService {
    * @param   code - Usable code
    * @returns Whether usable code has expired
    */
-  public checkIfExpired(code: UsableTokenEntity): boolean {
+  checkIfExpired(code: UsableTokenEntity): boolean {
     // NOTE: Missing codes should never be considered valid!
     return !code || (code.expiresAt && dayjs().isAfter(code.expiresAt));
   }
@@ -53,7 +53,7 @@ export class TokenService {
    * @param   code - Usable code
    * @returns Whether usable code has been invalidated
    */
-  public checkIfInvalidated(code: UsableTokenEntity): boolean {
+  checkIfInvalidated(code: UsableTokenEntity): boolean {
     // NOTE: Missing codes should never be considered valid!
     return !code || Boolean(code.invalidatedAt);
   }
@@ -64,7 +64,7 @@ export class TokenService {
    * @param   code - Usable code
    * @returns Whether usable code has been used
    */
-  public checkIfUsed(code: UsableTokenEntity): boolean {
+  checkIfUsed(code: UsableTokenEntity): boolean {
     // NOTE: Missing codes should never be considered valid!
     return !code || Boolean(code.usedAt);
   }
@@ -76,7 +76,7 @@ export class TokenService {
    * @param  messagePrefix - Usable code failure message type
    * @throws Errors on verification failures (invalid, expired, invalidated, used)
    */
-  public checkUsableCode(code: UsableTokenEntity | null, messagePrefix: string): void {
+  checkUsableCode(code: UsableTokenEntity | null, messagePrefix: string): void {
     if (!code) {
       throw new BadRequestException(`${messagePrefix} not found`);
     } else if (this.checkIfUsed(code)) {
@@ -96,10 +96,7 @@ export class TokenService {
    * @param   seconds - Minimum elapsed time
    * @returns Throttle information for code type
    */
-  public checkCodeThrottling(
-    code: VerificationCode | null,
-    seconds = 60,
-  ): IVerificationCodeThrottle {
+  checkCodeThrottling(code: VerificationCode | null, seconds = 60): IVerificationCodeThrottle {
     if (!code) {
       return {
         delay: 0,
@@ -124,7 +121,7 @@ export class TokenService {
    * @param   seconds - Minimum elapsed time
    * @returns Throttle information for code type
    */
-  public async checkCodeThrottlingLast(
+  async checkCodeThrottlingLast(
     account: Account,
     type: VerificationCodeType,
     seconds = 60,
@@ -186,7 +183,7 @@ export class TokenService {
    * @param   type    - Code type
    * @returns Last verification code entity for account
    */
-  public async getLastVerificationCode(
+  async getLastVerificationCode(
     account: Account,
     type: VerificationCodeType,
   ): Promise<VerificationCode | null> {
@@ -208,7 +205,7 @@ export class TokenService {
    * @param   type - Code type
    * @returns Verification code entity
    */
-  public async getVerificationCode(
+  async getVerificationCode(
     code: string,
     type: VerificationCodeType,
   ): Promise<VerificationCode | null> {
@@ -222,7 +219,7 @@ export class TokenService {
   }
 
   /** Mark a verification code as used (performs no validation!) */
-  public async markUsed(code: VerificationCode): Promise<VerificationCode> {
+  async markUsed(code: VerificationCode): Promise<VerificationCode> {
     code.usedAt = new Date();
     return this.verificationCodeRepo.save(code);
   }
@@ -237,7 +234,7 @@ export class TokenService {
    * @throws  Errors on verification failures (invalid, expired, invalidated, used)
    * @returns Regenerated verification code
    */
-  public async regenerateVerificationCode(
+  async regenerateVerificationCode(
     code: string,
     type: VerificationCodeType,
   ): Promise<VerificationCode> {
@@ -276,7 +273,7 @@ export class TokenService {
    * @throws  Errors on verification failures (invalid, expired, invalidated, used)
    * @returns Verification code account
    */
-  public async useVerificationCode(code: string, type: VerificationCodeType): Promise<Account> {
+  async useVerificationCode(code: string, type: VerificationCodeType): Promise<Account> {
     const verificationCode = await this.getVerificationCode(code, type);
     if (!verificationCode) {
       throw new BadRequestException("Verification code did not exist");

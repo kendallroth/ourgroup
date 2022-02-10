@@ -11,20 +11,20 @@ import { VerificationCodeType } from "../types";
 export class VerificationCode extends UsableTokenEntity {
   /** Verification code */
   @Column("text", { unique: true })
-  public code!: string;
+  code!: string;
 
   /** Verification code type */
   @Column({
     type: "enum",
     enum: VerificationCodeType,
   })
-  public type!: VerificationCodeType;
+  type!: VerificationCodeType;
 
   @Column("uuid", { name: "account_id" })
-  public accountId!: string;
+  accountId!: string;
 
   /** Verification code owner */
   @ManyToOne(() => Account, (account: Account) => account.verificationCodes)
   @JoinColumn({ name: "account_id" })
-  public account!: Account;
+  account!: Account;
 }
