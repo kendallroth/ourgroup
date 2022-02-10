@@ -28,6 +28,8 @@ export interface IJwtConfig {
   refreshTokenExpirySeconds: number;
   /** Refresh token length */
   refreshTokenLength: number;
+  /** Refresh token encryption rounds */
+  refreshTokenRounds: number;
 }
 
 /** JWT verification workflow */
@@ -37,14 +39,10 @@ export interface IJwtValidation {
 
 /** Password configuration */
 export interface IPasswordConfig {
-  /** Password hash digest algorithm */
-  hashDigest: "sha512";
-  /** Password hash key length */
-  hashKeyLength: number;
-  /** Number of hash rounds */
+  /** Number of hash rounds (bcrypt) */
   hashRounds: number;
-  /** Hash salt length */
-  hashSaltSize: number;
+  /** Number of hash salt rounds (bcrypt) */
+  hashSaltRounds: number;
 }
 
 /** Verification code throttle (prevent generating rapidly) */

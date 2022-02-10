@@ -12,24 +12,11 @@
 
 ```bash
 # Connect to Docker container
-$ docker-compose exec writers-api
+$ docker-compose exec ourgroup-api
 
 # Install new packages
 $ npm install <package>
 
 # Run database migrations
 $ npm run migrate
-```
-
-## Running the app
-
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
 ```

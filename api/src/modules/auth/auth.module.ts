@@ -21,8 +21,6 @@ import { JwtStrategy } from "./utilities";
 // NOTE: Non-standard approach necessary to access config in module file
 const jwtConfigInstance = jwtConfig();
 
-// key: "property"
-
 @Module({
   controllers: [AuthController],
   exports: [AuthService, PasswordService, TokenService],

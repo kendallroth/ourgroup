@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import dayjs from "dayjs";
 import { nanoid } from "nanoid";
 import { BadRequestException, forwardRef, Inject, Injectable } from "@nestjs/common";
@@ -42,7 +43,9 @@ export class RefreshTokenService {
 
     const refreshTokenPlain = nanoid(refreshTokenLength);
 
-    // Refresh tokens are hashed before storage (using account ID as salt) to mitigate security risk
+    // NOTE: Refresh tokens SHOULD NOT be hashed with bcrypt, as hashed tokens cannot be easily
+    //         retrieved from the database, which requires a comparison loop through bcrypt comparison.
+    //         This is insanely slow (entire purpose of bcrypt algorithm) and must be avoided!
     const refreshTokenHashed = await this.hashRefreshToken(refreshTokenPlain, account.accountId);
 
     await this.refreshTokenRepo.save({
@@ -51,25 +54,34 @@ export class RefreshTokenService {
       account,
     });
 
-    // NOTE: Unhashed refresh token must be returned to account (not hashed version)!
+    // NOTE: Unhashed refresh token must be returned to account (not encrypted version)!
     return refreshTokenPlain;
   }
 
   /**
-   * Hash a plaintext refresh token (uses account ID as salt)
+   * Lightly hash a refresh token (using account ID as salt)
    *
-   * Refresh tokens are hashed with a stripped account ID
+   * NOTE: This does not entirely mitigate security risks, but is better than storing plaintext!
+   *         Avoid using bcrypt as it is extremely slow for comparisons!
    *
-   * @param   refreshToken - Plaintext refresh token
+   * @param   refreshToken - Raw refresh token
    * @param   accountId    - Account ID (used as salt)
    * @returns Hashed refresh token
    */
-  public async hashRefreshToken(refreshToken: string, accountId: string): Promise<string> {
+  async hashRefreshToken(refreshToken: string, accountId: string): Promise<string> {
     // NOTE: The only thing this does is make the refresh token salt less obvious,
     //         it does not add any actual measure of security!
     const accountIdSalt = accountId.replace(/-/g, "").split("").reverse().join("");
 
-    return this.passwordService.hash(refreshToken, accountIdSalt);
+    return new Promise((resolve, reject) => {
+      const { refreshTokenLength: length, refreshTokenRounds: rounds } = this.jwtConfig;
+
+      crypto.pbkdf2(refreshToken, accountIdSalt, rounds, length, "sha512", (error, hashed) => {
+        if (error) return reject(error);
+
+        resolve(hashed.toString("base64"));
+      });
+    });
   }
 
   /**
@@ -80,7 +92,7 @@ export class RefreshTokenService {
   async refreshAuthToken(options: RefreshTokenDto): Promise<IAuthenticationResponse> {
     const { refreshToken: refreshTokenString, accountId } = options;
 
-    // Refresh tokens are hashed upon storage (using account ID as salt) to mitigate security risk
+    // Refresh tokens are lightly hashed upon storage (account ID as salt) to reduce security risk
     const hashedToken = await this.hashRefreshToken(refreshTokenString, accountId);
 
     const refreshToken = await this.refreshTokenRepo.findOne({

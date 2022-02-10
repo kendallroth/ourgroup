@@ -17,6 +17,7 @@ import { useRouter, useRoute } from "vue-router";
 import { TheAppHeader, TheAppSnackbar } from "@components/single";
 
 // Utilities
+import { useSnackbar } from "@composables";
 import { AccountService, AuthService } from "@services";
 import { useAccountStore } from "@store";
 
@@ -30,6 +31,7 @@ export default defineComponent({
     const router = useRouter();
     const route = useRoute();
     const accountStore = useAccountStore();
+    const { notifyError } = useSnackbar();
 
     /** Whether authentication is loading (MUST start 'true' to avoid double mounting components!) */
     const loadingAuth = ref(true);
@@ -57,7 +59,6 @@ export default defineComponent({
       try {
         account = await AccountService.fetchAccount();
       } catch (e) {
-        console.log("Error loading authenticated account", e);
         loadingAuth.value = false;
 
         // Auth token should be removed if authentiation fails
@@ -90,12 +91,11 @@ export default defineComponent({
       const requiresAuth = matched?.some((m) => m.meta?.requiresAuth);
       if (requiresAuth) {
         router.replace({
-          path: "/login",
+          path: "/auth/login",
           query: { redirectUrl: fullPath },
         });
 
-        // TODO: Notify account that they are not authenticated
-        console.error("Account is not authenticated");
+        notifyError("Account is not authenticated");
       }
     };
 
