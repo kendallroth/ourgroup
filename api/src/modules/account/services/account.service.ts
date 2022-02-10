@@ -114,7 +114,7 @@ export class AccountService {
     // Password hash is excluded from TypeORM query results (requires raw query)
     // NOTE: We know the account exists because a account entity was provided
     const hashResult = await this.accountRepo.query(
-      `SELECT password FROM "account" WHERE id = $1;`,
+      `SELECT password FROM "account" WHERE account_id = $1;`,
       [account.accountId],
     );
     if (!hashResult || !hashResult.length) return "";
