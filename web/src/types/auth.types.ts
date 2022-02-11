@@ -6,12 +6,14 @@ export interface IAuthCredentials {
 
 /** Authentication tokens */
 export interface IAuthTokens {
+  /** Authenticated account ID */
+  accountId: string;
+  /** When auth token expires (seconds) */
+  expiresIn: number;
   /** Refresh JWT token */
   refreshToken: string;
   /** Authentication JWT token */
   token: string;
-  /** Authenticated account ID */
-  accountId: string;
 }
 
 /** Email resend response */

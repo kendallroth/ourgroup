@@ -16,8 +16,22 @@ class AuthService {
   authToken: string | null = null;
   /** Authentication refresh token */
   refreshToken: string | null = null;
+  /** Timeout/interval for auto-refreshing auth tokens */
+  refreshTokenTimeout?: number;
   /** Ongoing refresh token call (to prevent generating multiple refresh token calls) */
   refreshCall: Promise<void> | null = null;
+
+  constructor() {
+    // Ensure auth token refresh cycle is cleaned up
+    window.addEventListener("beforeunload", () => {
+      this.clearRefreshTokenTimeout();
+    });
+  }
+
+  /** Clear automatated refresh token cycle timeout */
+  private clearRefreshTokenTimeout() {
+    clearTimeout(this.refreshTokenTimeout);
+  }
 
   /**
    * Determine whether user is authenticated
@@ -67,22 +81,20 @@ class AuthService {
 
     const accountStore = useAccountStore();
     accountStore.clearAccount();
-
-    // TODO: Revoke current refresh token
   }
 
   /**
    * Refresh authentication tokens
    *
-   * TODO: Investigate refreshing every so often
+   * Auth tokens are automatically refreshed periodically through an automatic
+   *   cycle, although any errors during this process are ignored.
+   *
    * @returns Reference to ongoing refresh tokens API call
    */
   async refreshTokens(): Promise<void> {
     // Ignoring previous refresh call would invalidate that access token when the second request
     //   went through, causing another authentication error (voiding benefit entirely)!
     if (this.refreshCall) return this.refreshCall;
-
-    // TODO: Refresh token and possibly start cycle until next refresh
 
     this.refreshCall = ApiService.api
       .post("/auth/refresh-token", {
@@ -129,6 +141,7 @@ class AuthService {
    */
   async removeAuthTokens(): Promise<void> {
     this.revokeAuthTokens();
+    this.clearRefreshTokenTimeout();
 
     this.authToken = null;
     this.refreshToken = null;
@@ -162,6 +175,31 @@ class AuthService {
 
     // Set Axios authorization header
     ApiService.setAuthToken(token);
+
+    // Restart automatic auth token refresh cycle
+    this.setRefreshTokenTimeout(tokens.expiresIn);
+  }
+
+  /**
+   * Set automatated refresh token cycle timeout, after which auth tokens will automatically
+   *   be refreshed to limit need for refreshing while handling authentication errors.
+   *
+   * @param seconds - Time before auto-refreshing auth tokens
+   */
+  private setRefreshTokenTimeout(seconds: number) {
+    this.clearRefreshTokenTimeout();
+
+    if (!seconds || seconds < 0) return;
+
+    // Refresh an auth token 30 seconds before it would expire
+    const preExpiryLeeway = 30;
+    const timeoutDelay = (seconds - preExpiryLeeway) * 1000;
+
+    this.refreshTokenTimeout = window.setTimeout(() => {
+      this.refreshTokens().catch(() => {
+        // TODO: Determine how to handle errors in automated refresh cycle
+      });
+    }, timeoutDelay);
   }
 }
 
