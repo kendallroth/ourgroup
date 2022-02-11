@@ -1,11 +1,12 @@
-import { Body, Controller, Request, Post, UseGuards, Patch, Delete } from "@nestjs/common";
+import { Body, Controller, Post, UseGuards, Patch, Delete } from "@nestjs/common";
 
 // Utilities
+import { RequestAccount } from "@common/decorators";
 import { AccountAuthenticatedGuard, LocalAuthGuard } from "@common/guards";
+import { Account } from "@modules/account/entities";
 import { AuthService, ForgotPasswordService, RefreshTokenService } from "../services";
 
 // Types
-import { AuthenticatedRequest } from "@common/types";
 import {
   ChangePasswordDto,
   ForgotPasswordRequestDto,
@@ -27,8 +28,8 @@ export class AuthController {
   /** Authentication login */
   @UseGuards(LocalAuthGuard)
   @Post("/login")
-  async authLogin(@Request() req: AuthenticatedRequest): Promise<IAuthenticationResponse> {
-    return this.authService.login(req.account);
+  async authLogin(@RequestAccount() account: Account): Promise<IAuthenticationResponse> {
+    return this.authService.login(account);
   }
 
   /** Change authenticated account's password */
@@ -36,9 +37,9 @@ export class AuthController {
   @Patch("/password/change")
   async changePassword(
     @Body() payload: ChangePasswordDto,
-    @Request() req: AuthenticatedRequest,
+    @RequestAccount() account: Account,
   ): Promise<void> {
-    return this.authService.changePassword(req.account, payload);
+    return this.authService.changePassword(account, payload);
   }
 
   /** Forgot password request */

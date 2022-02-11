@@ -1,8 +1,9 @@
-import { Body, Controller, Get, Patch, Post, Request, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Patch, Post, UseGuards } from "@nestjs/common";
 
 // Utilities
-import { AuthenticatedRequest } from "@common/types";
+import { RequestAccount } from "@common/decorators";
 import { AccountAuthenticatedGuard } from "@common/guards";
+import { Account } from "../entities";
 import { AccountService } from "../services";
 
 // Types
@@ -23,18 +24,18 @@ export class AccountController {
   /** Get current authenticated account information */
   @UseGuards(AccountAuthenticatedGuard)
   @Get("/")
-  async getAccountInfo(@Request() req: AuthenticatedRequest): Promise<IAccountPrivateInfo> {
-    return this.accountService.getPrivateProfile(req.account);
+  async getAccountInfo(@RequestAccount() account: Account): Promise<IAccountPrivateInfo> {
+    return this.accountService.getPrivateProfile(account);
   }
 
   /** Update current authenticated account information */
   @UseGuards(AccountAuthenticatedGuard)
   @Patch("/")
   async updateAccountInfo(
-    @Request() req: AuthenticatedRequest,
     @Body() payload: AccountUpdateDto,
+    @RequestAccount() account: Account,
   ): Promise<IAccountPrivateInfo> {
-    return this.accountService.updateProfile(req.account, payload);
+    return this.accountService.updateProfile(account, payload);
   }
 
   /** Create a new account */
