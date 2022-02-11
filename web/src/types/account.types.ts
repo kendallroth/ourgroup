@@ -1,6 +1,6 @@
 /** Authenticated account */
 export interface IAuthAccount {
-  accountId: string;
+  id: string;
   email: string;
   name: string | null;
   verifiedAt: string;

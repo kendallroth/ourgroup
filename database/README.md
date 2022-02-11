@@ -37,6 +37,6 @@ There are several standards and naming conventions for database development (via
 
 - Use `snake_case` for all entity fields (and database columns)
 - Use singular casing for all entity names
-- Avoid generic `id` entity fields (ambiguity); instead prefer specific field names (ie. `accountId`).
+- Avoid generic `id` database columns (ambiguity); instead prefer specific field names (ie. `account_id`). Entity fields may still use `id` though (for TS)!
 - Append `_at` to dates representing an "auditable" event, but `_date`/`_time` to dates representing a "regular" event
   - `created_at` and `verified_at` represent an event in time, while `start_date` represents a regular event

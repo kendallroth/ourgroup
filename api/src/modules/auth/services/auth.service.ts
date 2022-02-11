@@ -70,10 +70,10 @@ export class AuthService {
     const refreshToken = await this.refreshTokenService.generateRefreshToken(account);
 
     return {
+      accountId: account.id,
       expiresIn: jwtExpirySeconds,
       refreshToken,
       token,
-      accountId: account.accountId,
     };
   }
 
