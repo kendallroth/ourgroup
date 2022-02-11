@@ -23,7 +23,7 @@ const getColorFromLogLevel = (logLevel: string): chalk.ChalkFunction => {
  *
  * Source: https://github.com/winstonjs/logform#printf
  */
-const winstonConsoleFormatter = printf(({ context, level, message, timestamp }) => {
+const winstonConsoleFormatter = printf(({ context, error, level, message, timestamp }) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const isObject = (obj: any) =>
     typeof obj !== "undefined" && obj !== null && typeof obj === "object";
@@ -38,7 +38,8 @@ const winstonConsoleFormatter = printf(({ context, level, message, timestamp }) 
   const contextMessage = context ? chalk.yellow(`[${context}] `) : "";
   const timeMessage = dayjs(timestamp).format("YYYY/MM/DD HH:mm:ss");
   const logLevelMessage = color(level.toUpperCase().padStart(7, " "));
-  return `${prefix} ${timeMessage} ${logLevelMessage} ${contextMessage}${output}`;
+  const errorMessage = error ? `\n${error.stack ?? error}` : "";
+  return `${prefix} ${timeMessage} ${logLevelMessage} ${contextMessage}${output}${errorMessage}`;
 });
 
 export { winstonConsoleFormatter };

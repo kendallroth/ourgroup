@@ -1,4 +1,4 @@
-import { Catch, ArgumentsHost, HttpException } from "@nestjs/common";
+import { ArgumentsHost, Catch, HttpException, Logger } from "@nestjs/common";
 import { BaseExceptionFilter } from "@nestjs/core";
 
 /**
@@ -8,15 +8,16 @@ import { BaseExceptionFilter } from "@nestjs/core";
  */
 @Catch()
 export class UncaughtExceptionFilter extends BaseExceptionFilter {
-  catch(exception: unknown, host: ArgumentsHost) {
+  private readonly logger = new Logger("UncaughtFilter");
+
+  catch(exception: Error, host: ArgumentsHost) {
     const isHttpException = exception instanceof HttpException;
 
     // Uncaught exceptions should have a bit of extra logging
     // NOTE: Assumes that all errors NOT inheriting from 'HttpException' are uncaught!
     if (!isHttpException) {
-      // TODO: Figure out how to handle this
-      // eslint-disable-next-line no-console
-      console.log("[UncaughtFilter]: Uncaught error thrown");
+      // TODO: Figure out how to handle this better
+      this.logger.error(exception.message ?? "Uncaught error thrown", exception, "Uncaught Filter");
     }
 
     super.catch(exception, host);
