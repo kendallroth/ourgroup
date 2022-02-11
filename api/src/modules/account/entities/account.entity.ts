@@ -7,7 +7,7 @@ import { RefreshToken, VerificationCode } from "@modules/auth/entities";
 @Entity({ name: "account" })
 export class Account extends BaseEntity {
   @PrimaryGeneratedColumn("uuid", { name: "account_id" })
-  accountId!: string;
+  id!: string;
 
   @Column("text", { unique: true })
   email!: string;

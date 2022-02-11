@@ -28,7 +28,7 @@ export class RequestLoggerMiddleware implements NestMiddleware {
     // Response status code is not actually set until the response has been completed!
     res.on("finish", () => {
       const requestTime = new Date().getTime() - startTime;
-      let accountId = (req as unknown as IAuthenticatedRequest).account?.accountId ?? "";
+      let accountId = (req as unknown as IAuthenticatedRequest).account?.id ?? "";
       accountId = accountId ? ` accountId:${accountId}` : "";
       const method = req.method.padStart(5, " ");
       const routeMessage = `${method} ${res.statusCode} ${req.path} (${requestTime}ms)${accountId}`;

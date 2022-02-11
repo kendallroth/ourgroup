@@ -44,7 +44,7 @@ export class RefreshTokenService {
     // NOTE: Refresh tokens SHOULD NOT be hashed with bcrypt, as hashed tokens cannot be easily
     //         retrieved from the database, which requires a comparison loop through bcrypt comparison.
     //         This is insanely slow (entire purpose of bcrypt algorithm) and must be avoided!
-    const refreshTokenHashed = await this.hashRefreshToken(refreshTokenPlain, account.accountId);
+    const refreshTokenHashed = await this.hashRefreshToken(refreshTokenPlain, account.id);
 
     await this.refreshTokenRepo.save({
       expiresAt: dayjs().add(refreshTokenExpirySeconds, "seconds").toDate(),
@@ -62,7 +62,7 @@ export class RefreshTokenService {
    * @param token - Refresh token (plain text)
    */
   private async getRefreshToken(token: RefreshTokenDto): Promise<RefreshToken | null> {
-    const { refreshToken: refreshTokenString, accountId } = token;
+    const { accountId, refreshToken: refreshTokenString } = token;
 
     // Refresh tokens are lightly hashed upon storage (account ID as salt) to reduce security risk.
     //   Account ID is included in hash as a way to generate identical hash for comparison purposes.
@@ -71,8 +71,8 @@ export class RefreshTokenService {
     const refreshToken = await this.refreshTokenRepo.findOne({
       relations: ["account"],
       where: {
+        accountId,
         token: hashedToken,
-        accountId: accountId,
       },
     });
 

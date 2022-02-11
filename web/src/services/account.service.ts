@@ -31,9 +31,9 @@ class AccountService {
     // TODO: Determine where we store in Redux (or if?)
 
     return {
+      id: account.id,
       email: account.email,
       name: account.name ?? null,
-      accountId: account.accountId,
       verifiedAt: account.verifiedAt ?? null,
     };
   }
