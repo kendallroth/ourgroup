@@ -5,7 +5,6 @@ import qs from "qs";
 // Utilities
 import config from "@config";
 import router from "@router";
-import { sleep } from "@utilities/sleep.util";
 import AuthService from "./auth.service";
 
 interface CommonHeaderProperties extends HeadersDefaults {
@@ -40,17 +39,15 @@ class ApiService {
     );
   }
 
-  /**
-   * Get API info
-   */
+  /** Get API basic info */
   async getApiInfo(): Promise<any> {
     const response = await this.api.get("/");
-    await sleep(1000);
     return response.data;
   }
 
   /**
-   * Intercept Axios errors and check for authentication problems
+   * Intercept Axios errors and check for authentication problems. Failed
+   *   authentication will automatically refresh auth token and try again.
    *
    * @param   error - Axios response error
    * @returns Axios response chain
@@ -88,7 +85,7 @@ class ApiService {
 
         const { fullPath } = router.currentRoute.value;
         router.replace({
-          path: "/login",
+          path: "/auth/login",
           query: { redirectUrl: fullPath },
         });
 
@@ -99,9 +96,7 @@ class ApiService {
     }
   }
 
-  /**
-   * Remove Axios authentication token
-   */
+  /** Remove Axios authentication token */
   removeAuthToken(): void {
     const headers = this.api.defaults.headers as CommonHeaderProperties;
     headers["Authorization"] = null;

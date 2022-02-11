@@ -134,15 +134,17 @@ export class TokenService {
   /**
    * Generate a verification code
    *
-   * NOTE: Invalidates all previously unused/valid codes of this type for this account!
+   * NOTE: By default will invalidate all previously unused/valid codes of this type for this account!
    *
-   * @param   account - Target account
-   * @param   type    - Verification code type
+   * @param   account            - Target account
+   * @param   type               - Verification code type
+   * @param   invalidatePrevious - Whether previous valid codes should be invalidated
    * @returns Generated verification code
    */
   async createVerificationCode(
     account: Account,
     type: VerificationCodeType,
+    invalidatePrevious = true,
   ): Promise<VerificationCode> {
     const codeConfig = codeExpiryLength[type];
 
@@ -150,27 +152,29 @@ export class TokenService {
     const code = codeConfig.generator();
 
     // Invalidate all previously unused/valid codes of this type for this account
-    await this.verificationCodeRepo.update(
-      {
-        invalidatedAt: null,
-        type,
-        usedAt: null,
-        account,
-      },
-      {
-        invalidatedAt: new Date(),
-      },
-    );
+    if (invalidatePrevious) {
+      await this.verificationCodeRepo.update(
+        {
+          account,
+          invalidatedAt: null,
+          type,
+          usedAt: null,
+        },
+        {
+          invalidatedAt: new Date(),
+        },
+      );
+    }
 
     // NOTE: Auto-generated code ID is used as the unique link between account and code,
     //         since the code itself may not be unique across the table (depending on size)!
     return this.verificationCodeRepo.save({
+      account,
+      code,
       expiresAt,
       invalidatedAt: null,
-      code,
       type,
       usedAt: null,
-      account,
     });
   }
 

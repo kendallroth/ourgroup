@@ -41,9 +41,7 @@ class AuthService {
     return hasAuth;
   }
 
-  /**
-   * Load stored authentication tokens
-   */
+  /** Load stored authentication tokens */
   loadAuth(): void {
     this.authToken = localStorage.getItem(AUTH_TOKEN_KEY) ?? null;
     this.refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY) ?? null;
@@ -62,9 +60,7 @@ class AuthService {
     this.setAuthTokens(tokens);
   }
 
-  /**
-   * Logout authenticated user and clean up state
-   */
+  /** Logout authenticated user and clean up state */
   async logout(): Promise<void> {
     // Revoke/clean up authentication tokens
     await this.removeAuthTokens();

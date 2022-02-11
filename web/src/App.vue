@@ -3,7 +3,7 @@
     <the-app-header :loading="loadingAuth" />
     <router-view v-if="!loadingAuth" />
     <div v-else class="app-loader">
-      <v-progress-circular color="primary" indeterminte size="80" />
+      <v-progress-circular color="primary" indeterminate size="80" />
     </div>
     <the-app-snackbar />
   </v-app>
@@ -44,6 +44,7 @@ export default defineComponent({
       loadingAuth.value = false;
     });
 
+    /** Load account information (if previously authenticated) */
     const loadAccount = async (): Promise<void> => {
       // Only try fetching authenticated account if all auth tokens are present
       const hasAuthTokens = AuthService.hasAuthTokens();
@@ -81,9 +82,7 @@ export default defineComponent({
       }
     };
 
-    /**
-     * Protect authorized routes if user authentication fails
-     */
+    /** Protect authorized routes if user authentication fails */
     const preventRouteAccess = (): void => {
       const { fullPath, matched } = route;
 

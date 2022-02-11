@@ -52,16 +52,8 @@ export class AuthService {
       throw new CodedError("CHANGE_PASSWORD__WRONG_PASSWORD", "Incorrect old password");
     }
 
-    // Password cannot match account's last password
-    const newPasswordMatchesOld = await this.passwordService.verify(newPassword, oldPasswordHash);
-    if (newPasswordMatchesOld) {
-      throw new CodedError(
-        "CHANGE_PASSWORD__PASSWORD_MATCHES_OLD",
-        "Password cannot match last password",
-      );
-    }
-
-    await this.accountService.setPassword(account, newPassword);
+    // NOTE: Validates that password doest not match account's last password
+    await this.setPassword(account, newPassword);
   }
 
   /**
