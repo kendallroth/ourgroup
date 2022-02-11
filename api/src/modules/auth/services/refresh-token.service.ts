@@ -59,12 +59,13 @@ export class RefreshTokenService {
   /**
    * Find an account refresh token
    *
-   * @param token - Refresh token and account
+   * @param token - Refresh token (plain text)
    */
   private async getRefreshToken(token: RefreshTokenDto): Promise<RefreshToken | null> {
     const { refreshToken: refreshTokenString, accountId } = token;
 
-    // Refresh tokens are lightly hashed upon storage (account ID as salt) to reduce security risk
+    // Refresh tokens are lightly hashed upon storage (account ID as salt) to reduce security risk.
+    //   Account ID is included in hash as a way to generate identical hash for comparison purposes.
     const hashedToken = await this.hashRefreshToken(refreshTokenString, accountId);
 
     const refreshToken = await this.refreshTokenRepo.findOne({
@@ -79,7 +80,7 @@ export class RefreshTokenService {
   }
 
   /**
-   * Lightly hash a refresh token (using account ID as salt)
+   * Lightly hash a refresh token (using account ID as "reproducible" salt)
    *
    * NOTE: This does not entirely mitigate security risks, but is better than storing plaintext!
    *         Avoid using bcrypt as it is extremely slow for comparisons!
