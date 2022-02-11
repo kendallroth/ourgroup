@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module, RequestMethod } from "@nestjs/common";
+import { MiddlewareConsumer, Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
 
@@ -31,6 +31,6 @@ import appConfig from "./app.config";
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
     // Request logging and correlation IDs should be applied to all routes
-    consumer.apply(RequestLoggerMiddleware).forRoutes({ method: RequestMethod.ALL, path: "*" });
+    consumer.apply(RequestLoggerMiddleware).forRoutes("*");
   }
 }
