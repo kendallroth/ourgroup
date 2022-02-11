@@ -5,6 +5,7 @@ import { ConfigType } from "@nestjs/config";
 import _appConfig from "@app/app.config";
 import { ThrottleError } from "@common/exceptions";
 import { AccountService } from "@modules/account/services";
+import { LoggerService } from "@modules/log/services";
 import { AuthService } from "./auth.service";
 import { codeExpiryLength, TokenService } from "./token.service";
 
@@ -24,11 +25,14 @@ export class ForgotPasswordService {
   constructor(
     @Inject(forwardRef(() => AccountService))
     private readonly accountService: AccountService,
-    private readonly authService: AuthService,
-    private readonly tokenService: TokenService,
     @Inject(_appConfig.KEY)
     private readonly appConfig: ConfigType<typeof _appConfig>,
-  ) {}
+    private readonly authService: AuthService,
+    private readonly logger: LoggerService,
+    private readonly tokenService: TokenService,
+  ) {
+    this.logger.setContext(ForgotPasswordService.name);
+  }
 
   /**
    * Request a password reset
@@ -75,7 +79,7 @@ export class ForgotPasswordService {
 
     // TODO: Send emails with SendGrid
     const verificationUrl = `${this.appConfig.webAppUrl}/auth/password/reset/${verificationCode.code}`;
-    console.log(`[PasswordReset]: Use '${verificationCode.code}' to reset password (${verificationUrl})`); // prettier-ignore
+    this.logger.debug(`Use '${verificationCode.code}' to reset password (${verificationUrl})`) // prettier-ignore
 
     return {
       expiry: codeExpiry,

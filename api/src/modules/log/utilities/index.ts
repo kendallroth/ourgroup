@@ -1,1 +1,1 @@
-export * from "./logger.util";
+export * from "./winston-console-formatter.util";

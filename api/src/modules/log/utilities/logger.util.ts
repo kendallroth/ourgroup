@@ -1,3 +1,5 @@
+// TODO: Delete this file after validating service-based approach!
+
 import dayjs from "dayjs";
 import { ConsoleLogger } from "@nestjs/common";
 import winston, { Logger as LoggerType, LoggerOptions } from "winston";

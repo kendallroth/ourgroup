@@ -19,6 +19,7 @@ import {
   PasswordService,
   TokenService,
 } from "@modules/auth/services";
+import { LoggerService } from "@modules/log/services";
 import { Account } from "../entities";
 
 // Types
@@ -44,11 +45,14 @@ export class AccountService {
     private readonly appConfig: ConfigType<typeof _appConfig>,
     @Inject(forwardRef(() => AuthService))
     private readonly authService: AuthService,
+    private readonly logger: LoggerService,
     @Inject(forwardRef(() => PasswordService))
     private readonly passwordService: PasswordService,
     @Inject(forwardRef(() => TokenService))
     private readonly tokenService: TokenService,
-  ) {}
+  ) {
+    this.logger.setContext(AccountService.name);
+  }
 
   /**
    * Create a new account
@@ -89,7 +93,7 @@ export class AccountService {
 
     // TODO: Send emails with SendGrid
     const verificationUrl = `${this.appConfig.webAppUrl}/auth/verify/${verificationCode.code}`;
-    console.log(`[AccountCreate]: Use '${verificationCode.code}' to verify account (${verificationUrl})`); // prettier-ignore
+    this.logger.debug(`Use '${verificationCode.code}' to verify account (${verificationUrl})`); // prettier-ignore
 
     return this.authService.createAuthTokens(account);
   }
@@ -273,7 +277,7 @@ export class AccountService {
 
     // TODO: Send emails with SendGrid
     const verificationUrl = `${this.appConfig.webAppUrl}/auth/verify/${verificationCode.code}`;
-    console.log(`[AccountVerification]: Use '${verificationCode.code}' to verify account (${verificationUrl})`); // prettier-ignore
+    this.logger.debug(`Use '${verificationCode.code}' to verify account (${verificationUrl})`); // prettier-ignore
 
     return {
       expiry: codeExpiry,
