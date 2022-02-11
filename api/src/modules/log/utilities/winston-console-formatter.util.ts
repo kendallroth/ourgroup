@@ -6,6 +6,8 @@ const { printf } = format;
 /** Match a log level to a terminal color */
 const getColorFromLogLevel = (logLevel: string): chalk.ChalkFunction => {
   switch (logLevel) {
+    case "debug":
+      return chalk.reset;
     case "error":
       return chalk.red;
     case "info":

@@ -5,19 +5,17 @@ import { HttpAdapterHost, NestFactory } from "@nestjs/core";
 
 // Utilities
 import { UncaughtExceptionFilter } from "@common/filters";
-import { CustomLogger } from "@modules/log/utilities";
+import { LoggerService } from "@modules/log/services";
 import { AppModule } from "./app/app.module";
 
 /** Bootstrap the NestJS application */
 async function bootstrap() {
-  const logger = new CustomLogger();
+  const logger = new LoggerService();
   const app = await NestFactory.create(AppModule, {
-    // Buffer logs until logging module has been initialized
-    bufferLogs: true,
+    // Source: https://docs.nestjs.com/techniques/logger#using-the-logger-for-application-logging
+    // NOTE: Do not need to buffer logs initialized when overriding during creation!
+    logger,
   });
-
-  // Source: https://docs.nestjs.com/techniques/logger#using-the-logger-for-application-logging
-  app.useLogger(logger);
 
   app.enableCors();
 
