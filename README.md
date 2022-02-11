@@ -30,8 +30,9 @@ Setup information has been moved to the appropriate `README` files.
 
 However, a quickstart for returning developers is as follows:
 
-1. Copy example environment variable files and populate with valid values
-2. Start API, web, and database Docker containers with `docker-compose up`
+1. Run `make setup` to quickly setup development environment (env files, git hooks, etc)
+2. Populate new environment variable files with valid values
+3. Start API, web, and database Docker containers with `docker-compose up`
 
 ### Environment Variables
 
@@ -40,8 +41,8 @@ Development environment variables are managed through Docker Compose and `.env` 
 The example environment variable files should each be copied into a matching .env file, then updated as necessary.
 
 ```sh
-cp .env.example .env
-cp api/.env.example api/.env
+# NOTE: Run as part of "make setup"!
+make setup_env_files
 ```
 
 > NOTE: Docker Compose stack must be restarted whenever environment variables are changed!
@@ -59,6 +60,8 @@ docker-compose up [NAMES?]
 docker-compose exec [NAME] sh
 # Stop all running containers
 docker stop $(docker container ls -q)
+# Connect to database
+make psql
 ```
 
 > NOTE: In case of database port conflicts (ie. Postgres installed locally), change the `DB_PORT` env variable and restart Docker Compose.

@@ -13,8 +13,10 @@ services:
     entrypoint: "/bin/sh /home/node/ourgroup-web/docker_setup.sh"
     environment:
       VITE_API_URL: ${API_HOST}:${API_PORT}
-      VITE_ENV_NAME: ${APP_ENV_NAME:-production}
       VITE_PORT: ${APP_PORT}
+    env_file:
+      # NOTE: Web-specific env variables belong in a dedicated env file
+      - web/.env
     volumes:
       - ./web:/home/node/ourgroup-web
     ports:
