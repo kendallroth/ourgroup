@@ -5,6 +5,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 // Utilities
 import { AccountModule } from "@modules/account/account.module";
 import { AuthModule } from "@modules/auth/auth.module";
+import { LogModule } from "@modules/log/log.module";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import appConfig from "./app.config";
@@ -21,6 +22,7 @@ import appConfig from "./app.config";
     // Local modules
     AccountModule,
     AuthModule,
+    LogModule,
   ],
   controllers: [AppController],
   providers: [AppService],

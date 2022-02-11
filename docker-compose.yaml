@@ -36,6 +36,9 @@ services:
     entrypoint: "/bin/sh /home/node/ourgroup-api/docker_setup.sh"
     environment:
       DATABASE_URL: "postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:5432/${DB_NAME}"
+      # NOTE: Force Docker container to allow colors for "chalkjs"
+      # Source: https://github.com/chalk/chalk#supportscolor
+      FORCE_COLOR: 1
       NODE_ENV: ${NODE_ENV:-development}
       PORT: ${API_PORT}
       WEB_APP_URL: ${APP_HOST}:${APP_PORT}

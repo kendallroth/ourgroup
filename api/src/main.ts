@@ -1,14 +1,23 @@
+import chalk from "chalk";
 import { ValidationPipe } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { HttpAdapterHost, NestFactory } from "@nestjs/core";
 
 // Utilities
 import { UncaughtExceptionFilter } from "@common/filters";
+import { CustomLogger } from "@modules/log/utilities";
 import { AppModule } from "./app/app.module";
 
 /** Bootstrap the NestJS application */
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const logger = new CustomLogger();
+  const app = await NestFactory.create(AppModule, {
+    // Buffer logs until logging module has been initialized
+    bufferLogs: true,
+  });
+
+  // Source: https://docs.nestjs.com/techniques/logger#using-the-logger-for-application-logging
+  app.useLogger(logger);
 
   app.enableCors();
 
@@ -32,8 +41,7 @@ async function bootstrap() {
   const port = configService.get<number>("app.port", 3001);
   await app.listen(port);
 
-  // eslint-disable-next-line no-console
-  console.log(`Listening on port ${port}`);
+  logger.log(`${chalk.yellow("⚡")} Listening on port ${port}`, "Bootstrap");
 }
 
 bootstrap();

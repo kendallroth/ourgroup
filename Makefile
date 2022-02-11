@@ -9,6 +9,10 @@ setup_env_files:
 	cp -n api/.env.example api/.env
 	cp -n web/.env.example web/.env
 
+# Open bash terminal inside API container
+connect_api:
+	docker-compose exec ourgroup-api sh
+
 # Open PSQL terminal inside database container
-psql:
+connect_psql:
 	docker-compose exec ourgroup-db psql -U ourgroup
