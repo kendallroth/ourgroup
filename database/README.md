@@ -7,10 +7,8 @@
 Connecting to the postgres database can be done either through a db tool (such as DBeaver) or Docker Compose. If connecting through an external database tool, use the database credentials defined in the root `.env` file.
 
 ```sh
-# Attach to running database container
-docker-compose exec tbws-db sh
-# Enter PSQL command line interface
-$ psql -U tbws-db
+# Connect to database container
+make psql
 # Begin querying information about database
 $ select * from migrations;
 ```
@@ -22,7 +20,7 @@ TypeORM provides a migration CLI (_wrapped with scripts_) to handle generating n
 
 ```sh
 # Attach to the running API container
-docker-compose exec tbws-api sh
+docker-compose exec ourgroup-api sh
 # View migration info
 $ npm run migrate:show
 # Run outstanding migrations
