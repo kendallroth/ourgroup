@@ -1,10 +1,9 @@
 <template>
   <app-page size="small">
+    <title-bar class="my-4" title="Settings" type="h1" />
     <v-card class="settings-card">
-      <h2>Settings</h2>
-      <v-divider class="my-4" />
-      <h3 class="mt-6 mb-4">Change Password</h3>
-      <form class="change-password-form" @submit="onChangePassword">
+      <title-bar class="mb-6" title="Change Password" type="h3" />
+      <form class="change-password-form" @submit="onPasswordChange">
         <v-container>
           <v-row>
             <v-col>
@@ -15,15 +14,14 @@
             </v-col>
           </v-row>
         </v-container>
-        <v-btn
-          :disabled="submitting"
-          class="ml-auto"
-          color="primary"
-          type="submit"
-          @click="onChangePassword"
-        >
-          Change Password
-        </v-btn>
+        <action-bar right>
+          <v-btn :disabled="submitting || !submittable" variant="text" @click="onReset">
+            Cancel
+          </v-btn>
+          <v-btn :disabled="submitting || !submittable" color="primary" type="submit">
+            Change Password
+          </v-btn>
+        </action-bar>
       </form>
     </v-card>
   </app-page>
@@ -57,17 +55,18 @@ export default defineComponent({
       oldPassword: yup.string().label("Current password").required(),
     });
 
-    const { handleSubmit, isSubmitting, meta, resetForm, setFieldError, values } = useForm({
+    const { handleSubmit, isSubmitting, meta, resetForm, setFieldError } = useForm({
       validationSchema: schema,
       initialValues: {
         newPassword: "",
         oldPassword: "",
       },
     });
+    const submittable = computed(() => meta.value.dirty);
     const submitting = computed(() => isSubmitting.value && meta.value.valid);
 
     /** Change current account password */
-    const onChangePassword = async (data: typeof values): Promise<void> => {
+    const onPasswordChange = handleSubmit(async (data): Promise<void> => {
       const { newPassword, oldPassword } = data;
 
       try {
@@ -86,14 +85,15 @@ export default defineComponent({
       }
 
       notifySuccess("Password has been changed");
-      // TODO: Determine why resetting fields does not reposition input labels?
       resetForm();
-    };
+    });
 
     return {
       account: computed(() => accountStore.account),
+      submittable,
       submitting,
-      onChangePassword: handleSubmit(onChangePassword),
+      onPasswordChange,
+      onReset: () => resetForm(),
     };
   },
 });
@@ -102,7 +102,6 @@ export default defineComponent({
 <style lang="scss" scoped>
 .settings-card {
   padding: 24px;
-  margin: 32px 0;
 }
 .change-password-form {
   display: flex;

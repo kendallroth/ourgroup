@@ -13,6 +13,10 @@ import {
 } from "@views/Auth";
 import Home from "@views/Home.vue";
 import PageNotFound from "@views/PageNotFound.vue";
+import { GroupDashboard } from "@views/Group";
+
+// Utilities
+import { AuthService } from "@services";
 
 /*
  * There are several types of route protection:
@@ -89,16 +93,26 @@ const authenticatedRoutes: RouteRecordRaw[] = [
       },
     ],
   },
+  {
+    path: "/groups",
+    name: "GroupDashboard",
+    component: GroupDashboard,
+    meta: { requiresAuth: true },
+  },
 ];
 
 const routes: RouteRecordRaw[] = [
   ...unauthenticatedRoutes,
   ...authenticatedRoutes,
-  // TODO: Home route should technically change depending on authentication...
   {
     path: "/",
     name: "home",
     component: Home,
+    beforeEnter: () => {
+      // Redirect root route to groups list for authenticated users
+      const authenticated = AuthService.hasAuthTokens();
+      if (authenticated) return "/groups";
+    },
   },
   {
     path: "/:pathMatch(.*)*",

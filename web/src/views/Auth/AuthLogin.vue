@@ -52,7 +52,7 @@ export default defineComponent({
       password: yup.string().label("Password").required(),
     });
 
-    const { handleSubmit, isSubmitting, meta, setFieldError, values } = useForm({
+    const { handleSubmit, isSubmitting, meta, setFieldError } = useForm({
       validationSchema: schema,
       initialValues: {
         email: "",
@@ -65,7 +65,7 @@ export default defineComponent({
     );
 
     /** Authenticate user and store received credentials */
-    const onLogin = async (data: typeof values): Promise<void> => {
+    const onLogin = handleSubmit(async (data): Promise<void> => {
       const { email, password } = data;
 
       try {
@@ -83,11 +83,11 @@ export default defineComponent({
       const { redirectUrl = "/" } = route.query;
       // Force a page refresh to better clean up app state
       window.location.replace(redirectUrl as string);
-    };
+    });
 
     return {
       submitting,
-      onLogin: handleSubmit(onLogin),
+      onLogin,
     };
   },
 });

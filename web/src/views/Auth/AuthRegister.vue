@@ -58,7 +58,7 @@ export default defineComponent({
         .required(),
     });
 
-    const { handleSubmit, isSubmitting, meta, setFieldError, values } = useForm({
+    const { handleSubmit, isSubmitting, meta, setFieldError } = useForm({
       validationSchema: schema,
       initialValues: {
         email: "",
@@ -72,7 +72,7 @@ export default defineComponent({
     );
 
     /** Create a new account (requires verification) */
-    const onCreateAccount = async (data: typeof values): Promise<void> => {
+    const onCreateAccount = handleSubmit(async (data): Promise<void> => {
       const { email, name, password } = data;
 
       try {
@@ -95,11 +95,11 @@ export default defineComponent({
 
       // Force a page refresh to better clean up app state
       window.location.replace("/");
-    };
+    });
 
     return {
       submitting,
-      onCreateAccount: handleSubmit(onCreateAccount),
+      onCreateAccount,
     };
   },
 });

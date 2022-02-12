@@ -5,7 +5,7 @@
       :fluid="fluid"
       class="page-layout__container"
     >
-      <v-row align="center" class="page-layout__row" no-gutters>
+      <v-row align="center" no-gutters>
         <v-col v-bind="columnProps">
           <slot />
         </v-col>
@@ -121,3 +121,9 @@ export default defineComponent({
   },
 });
 </script>
+
+<style lang="scss" scoped>
+.page-layout__container {
+  height: 100%;
+}
+</style>

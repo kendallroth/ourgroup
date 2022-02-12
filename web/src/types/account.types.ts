@@ -12,3 +12,8 @@ export interface IAccountCreate {
   name: string;
   password: string;
 }
+
+/** Account update payload */
+export interface IAccountUpdate {
+  name: string;
+}
