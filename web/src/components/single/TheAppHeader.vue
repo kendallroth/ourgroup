@@ -1,7 +1,7 @@
 <template>
   <v-app-bar app class="app-header" color="primary">
     <div class="app-header__content">
-      <router-link to="/">
+      <router-link :to="homeRoute">
         <v-img
           :src="logoImg"
           alt="App Logo"
@@ -82,14 +82,15 @@ export default defineComponent({
     const route = useRoute();
     const accountStore = useAccountStore();
 
-    const isLogoutRoute = computed(() => route.name === "authLogout");
-
     const icons = {
       alert: mdiAlert,
       logout: mdiLogoutVariant,
       profile: mdiFaceMan,
     };
     const logoImg = new URL("/src/assets/logo.png", import.meta.url).href;
+
+    const isLogoutRoute = computed(() => route.name === "authLogout");
+    const homeRoute = computed(() => (accountStore.authenticated ? "/groups" : "/"));
     const menuItems: IMenuItem[] = [
       { text: "Profile", to: "/account/profile" },
       { text: "Settings", to: "/account/settings" },
@@ -108,6 +109,7 @@ export default defineComponent({
       accountStore,
       appVersion: config.app.version,
       closeMenu,
+      homeRoute,
       icons,
       isLogoutRoute,
       logoImg,

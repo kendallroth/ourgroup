@@ -6,8 +6,8 @@
     :error="Boolean(error)"
     :hint="error ?? hint"
     :label="label"
+    :model-value="inputValue"
     :type="inputType"
-    :value="inputValue"
     density="comfortable"
     persistent-hint
     @click:append-inner="toggleHidden"
@@ -33,7 +33,7 @@ export default defineComponent({
       type: String,
     },
     label: {
-      required: true,
+      default: null,
       type: String,
     },
     name: {

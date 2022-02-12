@@ -1,10 +1,11 @@
 // Utilities
+import { useAccountStore } from "@store/account.store";
 import ApiService from "./api.service";
 import AuthService from "./auth.service";
 
 // Types
 import { IAuthTokens, IEmailResendResponse } from "@typings/auth.types";
-import { IAuthAccount, IAccountCreate } from "@typings/account.types";
+import { IAuthAccount, IAccountCreate, IAccountUpdate } from "@typings/account.types";
 
 class AccountService {
   /**
@@ -19,11 +20,7 @@ class AccountService {
     AuthService.setAuthTokens(tokens);
   }
 
-  /**
-   * Fetch authenticated account information
-   *
-   * @returns Authenticated account information
-   */
+  /** Fetch authenticated account information */
   async fetchAccount(): Promise<IAuthAccount> {
     const response = await ApiService.api.get("/account");
     const account = response.data;
@@ -35,6 +32,24 @@ class AccountService {
       email: account.email,
       name: account.name ?? null,
       verifiedAt: account.verifiedAt ?? null,
+    };
+  }
+
+  /** Update authenticated account information */
+  async updateAccount(account: IAccountUpdate): Promise<IAuthAccount> {
+    const response = await ApiService.api.patch("/account", account);
+    const updatedAccount = response.data;
+
+    const accountStore = useAccountStore();
+    if (accountStore.account) {
+      accountStore.account.name = account.name;
+    }
+
+    return {
+      id: updatedAccount.id,
+      email: updatedAccount.email,
+      name: updatedAccount.name ?? null,
+      verifiedAt: updatedAccount.verifiedAt ?? null,
     };
   }
 

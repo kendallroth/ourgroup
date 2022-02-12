@@ -1,5 +1,5 @@
 // Utilities
-import router from "@router";
+import router from "./index";
 
 /**
  * Get a redirect target from URL
