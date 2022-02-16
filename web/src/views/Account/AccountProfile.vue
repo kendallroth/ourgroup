@@ -132,7 +132,7 @@ export default defineComponent({
 }
 
 .profile-card__unverified-alert {
-  margin-top: 16px;
+  margin: 16px 0;
 
   :deep(.v-alert__avatar) {
     align-self: center;

@@ -1,3 +1,10 @@
+export enum AccountType {
+  /** Regular account created through registration */
+  FULL = "full",
+  /** Partial accounts are created anonymously (but can upgrade) */
+  PARTIAL = "partial",
+}
+
 /** Account information (private) */
 export interface IAccountPrivateInfo {
   id: string;

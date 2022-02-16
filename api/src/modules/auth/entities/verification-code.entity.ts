@@ -1,4 +1,4 @@
-import { Entity, ManyToOne, Column, JoinColumn } from "typeorm";
+import { Entity, ManyToOne, Column, JoinColumn, PrimaryGeneratedColumn } from "typeorm";
 
 // Models
 import { UsableTokenEntity } from "@common/entities";
@@ -9,6 +9,10 @@ import { VerificationCodeType } from "../types";
 
 @Entity({ name: "verification_code" })
 export class VerificationCode extends UsableTokenEntity {
+  /** Verification code ID */
+  @PrimaryGeneratedColumn("uuid", { name: "verification_code_id" })
+  id!: string;
+
   /** Verification code */
   @Column("text", { unique: true })
   code!: string;
@@ -20,8 +24,11 @@ export class VerificationCode extends UsableTokenEntity {
   })
   type!: VerificationCodeType;
 
+  /** "Duplicated" column for easier entity access */
   @Column("uuid", { name: "account_id" })
   accountId!: string;
+
+  /// Relationships ////////////////////////////////////////////////////////////
 
   /** Verification code owner */
   @ManyToOne(() => Account, (account: Account) => account.verificationCodes)
