@@ -17,9 +17,7 @@ if [ ! -z "$BRANCH_NAME" ] && [ "$BRANCH_NAME" != "HEAD" ] && [ "$SKIP_PREPARE_C
 
   PREFIX=${BASH_REMATCH[0]}
   PREFIX=${PREFIX::-1}
-  PREFIX_IN_COMMIT=$(grep -c "\[$PREFIX\]" $1)
-
-  echo $PREFIX
+  PREFIX_IN_COMMIT=$(grep -c "\[#$PREFIX\]" $1)
 
   if ! [[ -n "$PREFIX" ]]; then
     echo "Branch name does not contain GitHub issue number"
