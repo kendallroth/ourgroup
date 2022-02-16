@@ -2,7 +2,7 @@
 
 ## Setup
 
-1. Copy example environment variable files and populate with valid values
+1. Ensure environment variable files are populated with valid values
 2. Start API (and database) Docker containers with `docker-compose up`
 3. Install API dependencies in container
 4. Run migrations in container
@@ -12,7 +12,7 @@
 
 ```bash
 # Connect to Docker container
-$ docker-compose exec ourgroup-api
+make connect_api
 
 # Install new packages
 $ npm install <package>

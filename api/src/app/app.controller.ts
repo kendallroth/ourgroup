@@ -4,7 +4,7 @@ import { Controller, Get } from "@nestjs/common";
 import { AppService } from "./app.service";
 
 // Types
-import { IApiInfo } from "./types";
+import { IApiInfo } from "./app.types";
 
 @Controller()
 export class AppController {

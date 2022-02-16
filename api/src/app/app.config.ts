@@ -2,7 +2,7 @@ import dayjs from "dayjs";
 import { registerAs } from "@nestjs/config";
 
 // Types
-import { IApiConfig } from "./types";
+import { IApiConfig } from "./app.types";
 
 const nodeEnv = process.env.NODE_ENV || "development";
 
