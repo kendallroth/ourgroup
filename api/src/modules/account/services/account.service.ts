@@ -26,6 +26,7 @@ import { Account } from "../entities";
 import { IAuthenticationResponse, VerificationCodeType } from "@modules/auth/types";
 import {
   AccountCreateDto,
+  AccountType,
   AccountUpdateDto,
   AccountVerifyDto,
   AccountVerifyResendDto,
@@ -81,6 +82,7 @@ export class AccountService {
       email,
       name,
       password: passwordHash,
+      type: AccountType.FULL,
       verifiedAt: null,
     });
 

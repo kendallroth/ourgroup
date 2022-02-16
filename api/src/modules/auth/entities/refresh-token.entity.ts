@@ -6,8 +6,9 @@ import { Account } from "@modules/account/entities";
 
 @Entity({ name: "refresh_token" })
 export class RefreshToken extends UsableTokenEntity {
-  @PrimaryGeneratedColumn("uuid", { name: "token_id" })
-  tokenId!: string;
+  /** Refresh token ID */
+  @PrimaryGeneratedColumn("uuid", { name: "refresh_token_id" })
+  id!: string;
 
   /**
    * Refresh token
@@ -17,8 +18,11 @@ export class RefreshToken extends UsableTokenEntity {
   @Column("text", { unique: true })
   token!: string;
 
+  /** "Duplicated" column for easier entity access */
   @Column("uuid", { name: "account_id" })
   accountId!: string;
+
+  /// Relationships ////////////////////////////////////////////////////////////
 
   /** Refresh token owner */
   @ManyToOne(() => Account, (account) => account.refreshTokens, { nullable: false })

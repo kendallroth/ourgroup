@@ -14,5 +14,5 @@ connect_api:
 	docker-compose exec ourgroup-api sh
 
 # Open PSQL terminal inside database container
-connect_psql:
+connect_db:
 	docker-compose exec ourgroup-db psql -U ourgroup
