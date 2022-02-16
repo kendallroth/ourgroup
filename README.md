@@ -61,7 +61,7 @@ docker-compose exec [NAME] sh
 # Stop all running containers
 docker stop $(docker container ls -q)
 # Connect to database
-make psql
+make connect_db
 ```
 
 > NOTE: In case of database port conflicts (ie. Postgres installed locally), change the `DB_PORT` env variable and restart Docker Compose.

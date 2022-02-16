@@ -8,7 +8,7 @@ Connecting to the postgres database can be done either through a db tool (such a
 
 ```sh
 # Connect to database container
-make psql
+make connect_db
 # Begin querying information about database
 $ select * from migrations;
 ```
@@ -20,7 +20,7 @@ TypeORM provides a migration CLI (_wrapped with scripts_) to handle generating n
 
 ```sh
 # Attach to the running API container
-docker-compose exec ourgroup-api sh
+make connect_api
 # View migration info
 $ npm run migrate:show
 # Run outstanding migrations

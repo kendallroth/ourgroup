@@ -8,7 +8,7 @@ const { version } = require("../../package.json");
 import _appConfig from "./app.config";
 
 // Types
-import { IApiInfo } from "./types";
+import { IApiInfo } from "./app.types";
 
 @Injectable()
 export class AppService {
