@@ -1,6 +1,6 @@
 // Utilities
 import { useAccountStore } from "@store";
-import ApiService from "./api.service";
+import ApiService, { createApiInstance } from "./api.service";
 
 // Types
 import { IAuthCredentials, IAuthTokens } from "@typings/auth.types";
@@ -74,7 +74,12 @@ class AuthService {
     this.setAuthTokens(tokens);
   }
 
-  /** Logout authenticated user and clean up state */
+  /**
+   * Logout authenticated user and clean up state
+   *
+   * NOTE: Only cleans up app state and avoids any routing, as it may be called
+   *         from various places, including logout screen!
+   */
   async logout(): Promise<void> {
     // Revoke/clean up authentication tokens
     await this.removeAuthTokens();
@@ -96,14 +101,18 @@ class AuthService {
     //   went through, causing another authentication error (voiding benefit entirely)!
     if (this.refreshCall) return this.refreshCall;
 
-    this.refreshCall = ApiService.api
+    // Avoid the ApiService axios instance to ensure that interceptors are not fired,
+    //   which could trigger an infinite loop IF the API was ever updated to use a
+    //   "Not Authenticated" status for invalid refresh tokens (future proof).
+    const refreshTokenApi = createApiInstance();
+    this.refreshCall = refreshTokenApi
       .post("/auth/refresh-token", {
         accountId: this.accountId,
         refreshToken: this.refreshToken,
       })
       .then((response) => this.setAuthTokens(response.data))
       .catch((e) => {
-        // TODO: Determine if we want to handle at all?
+        // Callers should handle any errors as appropriate, which may not be always...
         throw e;
       })
       .finally(() => {
@@ -181,7 +190,7 @@ class AuthService {
   }
 
   /**
-   * Set automatated refresh token cycle timeout, after which auth tokens will automatically
+   * Set automated refresh token cycle timeout, after which auth tokens will automatically
    *   be refreshed to limit need for refreshing while handling authentication errors.
    *
    * @param seconds - Time before auto-refreshing auth tokens
@@ -192,12 +201,15 @@ class AuthService {
     if (!seconds || seconds < 0) return;
 
     // Refresh an auth token 30 seconds before it would expire
-    const preExpiryLeeway = 30;
+    const preExpiryLeeway = 5;
     const timeoutDelay = (seconds - preExpiryLeeway) * 1000;
 
     this.refreshTokenTimeout = window.setTimeout(() => {
       this.refreshTokens().catch(() => {
-        // TODO: Determine how to handle errors in automated refresh cycle
+        // Errors while automatically refreshing auth token should not necessarily
+        //   cause an error and force login, as this would disrupt user flow and
+        //   will be caught/handled properly when user performs an authenticated action.
+        console.log("Automatically refreshing auth token failed!");
       });
     }, timeoutDelay);
   }

@@ -72,7 +72,8 @@ export default defineComponent({
       // Initiate automatic refresh cycles to prevent token expiry, although it is
       //   already handled retroactively with Axios interceptors (better experience).
       AuthService.refreshTokens().catch(() => {
-        // TODO: Determine how to handle error while auto-refreshing auth tokens
+        // Errors should never occur here, but rather would be caught above when fetching
+        //   account information (will be handled there appropriately).
       });
 
       accountStore.setAccount(account);
