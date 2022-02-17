@@ -42,9 +42,14 @@ const createApiInstance = (overrides: AxiosRequestConfig = {}): AxiosInstance =>
 class ApiService {
   /** API axios instance */
   api: AxiosInstance;
+  /** Refresh calls since last API call (used to disable needless/endless token refreshing) */
+  refreshCallsSinceLastApiCall = 0;
 
   constructor() {
     this.api = createApiInstance();
+
+    // Apply request interceptor to reset inactive refresh calls counter
+    this.api.interceptors.request.use((config) => this.interceptRequests(config));
 
     // Apply authentication error interceptor to default API service Axios instance
     this.api.interceptors.response.use(
@@ -112,6 +117,20 @@ class ApiService {
 
       return Promise.reject(innerError);
     }
+  }
+
+  /**
+   * Intercept Axios request and reset the counter of refresh calls since last API call.
+   *
+   * @param   config - Axios request config
+   * @returns Axios request chain
+   */
+  interceptRequests(config: AxiosRequestConfig): AxiosRequestConfig {
+    // Refresh token calls should not reset consecutive call counter
+    if (config.url?.includes("/refresh-token")) return config;
+
+    this.refreshCallsSinceLastApiCall = 0;
+    return config;
   }
 
   /** Clean up and redirect to login after a refresh authentication error */
