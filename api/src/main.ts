@@ -17,9 +17,14 @@ async function bootstrap() {
     logger,
   });
 
-  app.enableCors();
-
   const configService = app.get(ConfigService);
+
+  const webAppUrl = configService.get<string>("app.webAppUrl", "");
+  app.enableCors({
+    // Cache preflight response for 1 hour ('Access-Control-Max-Age' header)
+    maxAge: 60 * 60,
+    origin: [webAppUrl],
+  });
 
   // Globally transform payload objects to match their TypeScript definition
   // Source: https://docs.nestjs.com/techniques/validation#transform-payload-objects
