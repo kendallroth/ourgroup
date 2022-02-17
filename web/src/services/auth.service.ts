@@ -82,7 +82,7 @@ class AuthService {
    */
   async logout(): Promise<void> {
     // Revoke/clean up authentication tokens
-    await this.removeAuthTokens();
+    this.removeAuthTokens();
 
     const accountStore = useAccountStore();
     accountStore.clearAccount();
@@ -110,7 +110,12 @@ class AuthService {
         accountId: this.accountId,
         refreshToken: this.refreshToken,
       })
-      .then((response) => this.setAuthTokens(response.data))
+      .then((response) => {
+        // Automatic refresh calls are eventually disabled after enough consecutive
+        //   refresh token calls without any other API activity in between.
+        ApiService.refreshCallsSinceLastApiCall++;
+        return this.setAuthTokens(response.data);
+      })
       .catch((e) => {
         // Callers should handle any errors as appropriate, which may not be always...
         throw e;
@@ -148,8 +153,10 @@ class AuthService {
    * NOTE: Tokens are stored in memory and local storage
    * NOTE: Does not necessarily need to be awaited (errors are handled silently)!
    */
-  async removeAuthTokens(): Promise<void> {
-    this.revokeAuthTokens();
+  removeAuthTokens(): void {
+    this.revokeAuthTokens().catch(() => {
+      // NOTE: Do nothing
+    });
     this.clearRefreshTokenTimeout();
 
     this.authToken = null;
@@ -200,9 +207,14 @@ class AuthService {
 
     if (!seconds || seconds < 0) return;
 
-    // Refresh an auth token 30 seconds before it would expire
+    // Automatic refresh calls are eventually disabled after enough consecutive
+    //   refresh token calls without any other API activity in between.
+    if (ApiService.refreshCallsSinceLastApiCall > 2) return;
+
+    // Refresh an auth token just before before it would expire
     const preExpiryLeeway = 5;
     const timeoutDelay = (seconds - preExpiryLeeway) * 1000;
+    if (timeoutDelay <= 0) return;
 
     this.refreshTokenTimeout = window.setTimeout(() => {
       this.refreshTokens().catch(() => {
