@@ -40,9 +40,17 @@ const createApiInstance = (overrides: AxiosRequestConfig = {}): AxiosInstance =>
 };
 
 class ApiService {
-  /** API axios instance */
+  /**
+   * API axios instance to be used for most API requests.
+   *
+   * NOTE: Utilizes interceptors to handle retrying failed requests after refreshing auth tokens.
+   *   However, this instance should not be used if it could trigger interceptor loops!
+   */
   api: AxiosInstance;
-  /** Refresh calls since last API call (used to disable needless/endless token refreshing) */
+  /**
+   * Refresh calls since last API call of any type, used to disable needless/endless
+   *  token refreshing for "inactive" users.
+   */
   refreshCallsSinceLastApiCall = 0;
 
   constructor() {
@@ -105,7 +113,10 @@ class ApiService {
         },
       };
 
-      return this.api(retryConfig);
+      // Avoid the class axios instance to ensure that interceptors are not fired,
+      //   which could trigger an infinite interceptor loop IF the retry failed due to auth!
+      const retryApi = createApiInstance();
+      return retryApi(retryConfig);
     } catch (innerError: any) {
       // Only logout user if retry error was actually related to auth (and not just a failed request)
       const innerStatus = innerError.response?.status ?? null;
